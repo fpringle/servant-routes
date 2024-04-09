@@ -1,0 +1,89 @@
+cabal-version:      3.0
+name:               servant-routes
+version:            0.1.0.0
+-- synopsis:
+-- description:
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Frederick Pringle
+maintainer:         freddyjepringle@gmail.com
+copyright:          Copyright(c) Frederick Pringle 2024
+homepage:           https://github.com/fpringle/servant-routes
+bug-reports:        https://github.com/fpringle/servant-routes/issues
+category:           Servant, Web
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+
+source-repository head
+  type:           git
+  location:       https://github.com/fpringle/servant-routes
+
+common warnings
+  ghc-options: -Wall -Wno-unused-do-bind
+
+common deps
+  build-depends:
+    , base >= 4
+
+common extensions
+  default-extensions:
+    BangPatterns
+    DeriveGeneric
+    DerivingVia 
+    FlexibleContexts
+    FlexibleInstances
+    GADTs
+    InstanceSigs
+    LambdaCase
+    MultiParamTypeClasses
+    NamedFieldPuns
+    OverloadedStrings
+    PackageImports
+    RecordWildCards
+    ScopedTypeVariables
+    TupleSections
+    TypeApplications
+    ViewPatterns
+    RankNTypes
+    UndecidableInstances
+    KindSignatures
+    DataKinds
+    StandaloneKindSignatures
+    AllowAmbiguousTypes
+    DefaultSignatures
+    PolyKinds
+    TypeFamilies
+    ConstraintKinds
+    StandaloneDeriving
+    Arrows
+    TypeOperators
+
+library
+  import:
+      warnings
+    , deps
+    , extensions
+  exposed-modules:
+  -- other-modules:
+  -- other-extensions:
+  hs-source-dirs:   src
+  default-language: Haskell2010
+
+test-suite servant-routes-test
+  import:
+      warnings
+    , deps
+    , extensions
+  default-language: Haskell2010
+  -- other-modules:
+  -- other-extensions:
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          Spec.hs
+  build-tool-depends:
+      hspec-discover:hspec-discover
+  ghc-options:      -Wno-orphans
+  build-depends:
+    , servant-routes
+    , QuickCheck
+    , hspec
