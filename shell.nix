@@ -3,6 +3,7 @@ let
   nix-pre-commit-hooks = import (builtins.fetchTarball "https://github.com/cachix/pre-commit-hooks.nix/tarball/master");
   pre-commit-check = import ./nix/pre-commit.nix;
   sources = import ./nix/sources.nix;
+  headroom-pinned = nixpkgs.haskellPackages.callCabal2nix "headroom" sources.headroom {};
 in
   with nixpkgs.haskellPackages;
     shellFor {
@@ -13,6 +14,7 @@ in
         hlint
         fourmolu
         ghcid
+        headroom-pinned
       ];
       shellHook = ''
         ${pre-commit-check.shellHook}

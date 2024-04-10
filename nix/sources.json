@@ -1,4 +1,16 @@
 {
+    "headroom": {
+        "branch": "master",
+        "description": "©️ Manager for license headers in source code files.",
+        "homepage": "https://doc.norcane.com/headroom/latest/",
+        "owner": "vaclavsvejcar",
+        "repo": "headroom",
+        "rev": "d754fadf4449cee8cc3674598822d46caab69a26",
+        "sha256": "044473vykhwld44pzp5sag2wbif9a63yvy4nirw72ri6rh9i1iqz",
+        "type": "tarball",
+        "url": "https://github.com/vaclavsvejcar/headroom/archive/d754fadf4449cee8cc3674598822d46caab69a26.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "nixpkgs": {
         "branch": "nixos-unstable",
         "description": "Nix Packages collection",
