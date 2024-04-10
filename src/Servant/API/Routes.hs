@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -411,8 +412,10 @@ instance
     where
       param = arrayElemParam @sym @a
 
+#if MIN_VERSION_servant(0,19,0)
 instance (HasRoutes (ToServantApi routes)) => HasRoutes (NamedRoutes routes) where
   getRoutes = getRoutes @(ToServantApi routes)
+#endif
 
 instance (KnownSymbol sym, HasRoutes api) => HasRoutes (QueryFlag sym :> api) where
   getRoutes = getRoutes @api <&> routeParams %~ (param :)

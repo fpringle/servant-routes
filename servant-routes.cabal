@@ -24,13 +24,13 @@ common warnings
 common deps
   build-depends:
     , base >= 4
-    , servant
-    , aeson
-    , text
-    , http-types
-    , containers
-    , microlens
-    , microlens-th
+    , servant >= 0.17 && < 0.21
+    , aeson >= 2.0 && < 2.3
+    , text >= 1.2 && < 2.2
+    , http-types >= 0.12 && < 0.13
+    , containers >= 0.6.3 && < 0.8
+    , microlens >= 0.4.9 && < 0.5
+    , microlens-th >= 0.4.3 && < 0.5
 
 common extensions
   default-extensions:
@@ -83,5 +83,3 @@ test-suite servant-routes-test
   ghc-options:      -Wno-orphans
   build-depends:
     , servant-routes
-    , QuickCheck
-    , hspec
