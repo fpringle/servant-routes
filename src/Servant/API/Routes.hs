@@ -3,8 +3,37 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 {- |
-Module: Servant.API.Routes
-Description: Simple typeclass to get all the routes of an API.
+Module      : Servant.API.Routes
+Copyright   : (c) Frederick Pringle, 2024
+License     : BSD-3-Clause
+Maintainer  : freddyjepringle@gmail.com
+
+This package provides two things:
+
+  1. A simple, and probably incomplete, way to represent APIs at the term level.
+     This is achieved by the 'Route', t'Routes', 'Path', 'Param', 'HeaderRep' types.
+  2. More interestingly, a way to automatically generate the routes from any Servant API.  This is
+     accomplished using the 'HasRoutes' typeclass. You can think of this as being a less sophisticated
+     version of @HasOpenApi@ from [servant-openapi3](https://hackage.haskell.org/package/servant-openapi3),
+     or a more sophisticated version of @layout@ from
+     [servant-server](https://hackage.haskell.org/package/servant-server).
+
+= Motivation
+
+Refactoring Servant API types is quite error-prone, especially when you have to move
+around lots of ':<|>' and ':>'.  So it's very possible that the route structure could
+change in that refactoring, /without being caught by the type-checker/.
+
+The 'HasRoutes' class could help as a golden test - run 'getRoutes' before and after
+the refactor, and if they give the same result.
+
+/Note that 'printRoutes' only includes the path, method and query parameters.
+For more detailed comparison, use the JSON instance of t'Routes', encode the routes to
+a file (before and after the refactoring), and use [jdiff](https://github.com/networktocode/jdiff)./
+
+Another use-case is in testing: some Haskellers use type families to modify Servant APIs, for example
+to add endpoints or authorisation headers. Types are hard to test, but terms are easy. Use 'HasRoutes'
+and run your tests on t'Routes'.
 -}
 module Servant.API.Routes
   ( -- * API routes

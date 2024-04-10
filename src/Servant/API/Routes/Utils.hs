@@ -1,3 +1,11 @@
+{- |
+Module      : Servant.API.Routes.Utils
+Copyright   : (c) Frederick Pringle, 2024
+License     : BSD-3-Clause
+Maintainer  : freddyjepringle@gmail.com
+
+Common useful functions.
+-}
 module Servant.API.Routes.Utils
   ( knownSymbolT
   , typeRepToJSON

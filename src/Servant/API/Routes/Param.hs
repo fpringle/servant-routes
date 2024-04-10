@@ -1,8 +1,12 @@
 {-# LANGUAGE DeriveAnyClass #-}
 
 {- |
-Module: Servant.API.Routes.Param
-Description: Simple representation of HTTP query params
+Module      : Servant.API.Routes.Param
+Copyright   : (c) Frederick Pringle, 2024
+License     : BSD-3-Clause
+Maintainer  : freddyjepringle@gmail.com
+
+Simple representation of HTTP query params
 -}
 module Servant.API.Routes.Param
   ( Param (..)

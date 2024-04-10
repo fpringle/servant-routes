@@ -1,6 +1,10 @@
 {- |
-Module: Servant.API.Routes.Path
-Description: Simple representation of URL paths.
+Module      : Servant.API.Routes.Path
+Copyright   : (c) Frederick Pringle, 2024
+License     : BSD-3-Clause
+Maintainer  : freddyjepringle@gmail.com
+
+Simple representation of URL paths.
 -}
 module Servant.API.Routes.Path
   ( Path
