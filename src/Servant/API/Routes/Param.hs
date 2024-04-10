@@ -9,7 +9,7 @@ Maintainer  : freddyjepringle@gmail.com
 Simple representation of HTTP query params
 -}
 module Servant.API.Routes.Param
-  ( Param (..)
+  ( Param
   , singleParam
   , arrayElemParam
   , flagParam
