@@ -442,10 +442,10 @@ instance (HasRoutes api, KnownSymbol realm) => HasRoutes (BasicAuth realm usr :>
     where
       auth = "Basic " <> knownSymbolT @realm
 
-instance (HasRoutes api) => HasRoutes (Description :> api) where
+instance (HasRoutes api) => HasRoutes (Description sym :> api) where
   getRoutes = getRoutes @api
 
-instance (HasRoutes api) => HasRoutes (Summary :> api) where
+instance (HasRoutes api) => HasRoutes (Summary sym :> api) where
   getRoutes = getRoutes @api
 
 instance
@@ -464,7 +464,7 @@ instance
     where
       header = mkHeaderRep @sym @(RequiredArgument mods a)
 
-instance (HasRoutes api) => HasRoutes (Fragment :> api) where
+instance (HasRoutes api) => HasRoutes (Fragment v :> api) where
   getRoutes = getRoutes @api
 
 instance (HasRoutes api) => HasRoutes (IsSecure :> api) where
@@ -473,8 +473,10 @@ instance (HasRoutes api) => HasRoutes (IsSecure :> api) where
 instance (HasRoutes api) => HasRoutes (RemoteHost :> api) where
   getRoutes = getRoutes @api
 
-instance (HasRoutes api) => HasRoutes (StreamBody' mods framing ct a :> api) where
-  getRoutes = getRoutes @api
+instance (HasRoutes api, Typeable a) => HasRoutes (StreamBody' mods framing ct a :> api) where
+  getRoutes = getRoutes @api <&> routeRequestBody ?~ reqBody
+    where
+      reqBody = typeRep $ Proxy @a
 
 instance (HasRoutes api) => HasRoutes (WithNamedContext name subContext api) where
   getRoutes = getRoutes @api
