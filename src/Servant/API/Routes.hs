@@ -9,6 +9,7 @@ Description: Simple typeclass to get all the routes of an API.
 module Servant.API.Routes
   ( -- * API routes
     Route
+  , defRoute
   , showRoute
   , Routes
   , unRoutes
@@ -51,8 +52,6 @@ import "this" Servant.API.Routes.Param
 import "this" Servant.API.Routes.Path
 import "this" Servant.API.Routes.Utils
 
--- import Servant.Links hiding (Param)
-
 -- | A simple representation of a single endpoint of an API.
 data Route = Route
   { _routeMethod :: Method
@@ -68,6 +67,9 @@ data Route = Route
 
 makeLenses ''Route
 
+{- | Given a REST 'Method', create a default 'Route': root path (@"/"@) with no params,
+headers, body, auths, or response.
+-}
 defRoute :: Method -> Route
 defRoute method =
   Route
@@ -87,6 +89,7 @@ defRoute method =
 -}
 newtype Routes = UnsafeRoutes
   { unRoutes :: Map.Map Path (Map.Map Method Route)
+  -- ^ Get the underlying 'Map.Map' of a t'Routes'.
   }
   deriving (Show, Eq)
 
@@ -102,10 +105,44 @@ makeRoutes = UnsafeRoutes . foldl' insert mempty
 unmakeRoutes :: Routes -> [Route]
 unmakeRoutes = concatMap Map.elems . Map.elems . unRoutes
 
+{- | A smart constructor that allows us to think of a t'Routes' as simply a list of
+'Route's, whereas it's actually a 'Map.Map'.
+-}
 pattern Routes :: [Route] -> Routes
 pattern Routes rs <- (unmakeRoutes -> rs)
   where
     Routes = makeRoutes
+
+{- | Pretty-print a 'Route'. Note that the output is minimal and doesn't contain all the information
+contained in a 'Route'. For full output, use the 'ToJSON' instance.
+
+@
+ghci> showRoute $ defRoute \"POST\"
+"POST /"
+ghci> :{
+ghci| showRoute $
+ghci|   defRoute \"POST\"
+ghci|     & routePath %~ prependPathPart "api/v2"
+ghci|     & routeParams .~ [singleParam @"p1" @T.Text, flagParam @"flag", arrayElemParam @"p2s" @(Maybe Int)]
+ghci| :}
+"POST \/api\/v2?p1=\<Text>&flag&p2s=\<[Maybe Int]>"
+@
+-}
+showRoute :: Route -> T.Text
+showRoute Route {..} =
+  mconcat
+    [ method
+    , " "
+    , path
+    , params
+    ]
+  where
+    method = TE.decodeUtf8 _routeMethod
+    path = renderPath _routePath
+    params =
+      if null _routeParams
+        then ""
+        else "?" <> T.intercalate "&" (renderParam <$> _routeParams)
 
 {-# COMPLETE Routes #-}
 
@@ -148,32 +185,17 @@ could help as a sanity check - run 'printRoutes' before and after the refactor,
 and if they give the same output then things are probably fine.
 
 Note that 'printRoutes' only includes the path, method and query parameters.
-For more detailed comparison, use the JSON instance of `Routes`, encode the routes to
+For more detailed comparison, use the JSON instance of t'Routes', encode the routes to
 a file (before and after the refactoring), and use jdiff.
 -}
 class HasRoutes api where
   getRoutes :: [Route]
 
+-- | Get all the routes of an API and print them to stdout. See 'showRoute' for examples.
 printRoutes :: forall api. HasRoutes api => IO ()
 printRoutes = traverse_ printRoute $ getRoutes @api
   where
     printRoute = T.putStrLn . showRoute
-
-showRoute :: Route -> T.Text
-showRoute Route {..} =
-  mconcat
-    [ method
-    , " "
-    , path
-    , params
-    ]
-  where
-    method = TE.decodeUtf8 _routeMethod
-    path = renderPath _routePath
-    params =
-      if null _routeParams
-        then ""
-        else "?" <> T.intercalate "&" (renderParam <$> _routeParams)
 
 instance HasRoutes EmptyAPI where
   getRoutes = mempty

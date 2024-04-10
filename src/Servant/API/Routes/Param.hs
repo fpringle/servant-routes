@@ -41,18 +41,21 @@ instance Eq Param where
         name1 == name2
       _ `eq` _ = False
 
+-- | Create a 'S.SingleParam' from a 'Symbol' and a 'TypeRep' via 'Typeable'.
 singleParam :: forall s a. (KnownSymbol s, Typeable a) => Param
 singleParam = Param (S.SingleParam name rep)
   where
     rep = showTypeRep @a
     name = symbolVal $ Proxy @s
 
+-- | Create an 'S.ArrayParam' from a 'Symbol' and a 'TypeRep' via 'Typeable'.
 arrayElemParam :: forall s a. (KnownSymbol s, Typeable a) => Param
 arrayElemParam = Param (S.ArrayElemParam name rep)
   where
     rep = showTypeRep @a
     name = symbolVal $ Proxy @s
 
+-- | Create a 'S.FlagParam' from a 'Symbol'.
 flagParam :: forall s. (KnownSymbol s) => Param
 flagParam = Param (S.FlagParam name)
   where
@@ -77,6 +80,7 @@ instance ToJSON Param where
     where
       withType t ps = ("type" .= t) : ps
 
+-- | Pretty-print a 'Param'. Used by 'Servant.API.Routes.showRoute'.
 renderParam :: Param -> T.Text
 renderParam (Param param) = case param of
   S.SingleParam var typ -> T.pack var <> "=<" <> typ <> ">"
