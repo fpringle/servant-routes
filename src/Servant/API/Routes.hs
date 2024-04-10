@@ -74,6 +74,7 @@ import qualified Data.Aeson.Key as AK (fromText)
 import qualified Data.Aeson.Types as A (Pair)
 import Data.Bifunctor (bimap)
 import Data.Foldable (foldl', traverse_)
+import Data.Function (on)
 import qualified Data.Map as Map
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
@@ -104,6 +105,9 @@ data Route = Route
   deriving (Show, Eq)
 
 makeLenses ''Route
+
+instance Ord Route where
+  compare = compare `on` \Route {..} -> (_routePath, _routeMethod)
 
 {- | Given a REST 'Method', create a default 'Route': root path (@"/"@) with no params,
 headers, body, auths, or response.

@@ -77,13 +77,18 @@ test-suite servant-routes-test
     , deps
     , extensions
   default-language: Haskell2010
-  -- other-modules:
-  -- other-extensions:
   type:             exitcode-stdio-1.0
   hs-source-dirs:   test
   main-is:          Spec.hs
+  other-modules:
+    Servant.API.RoutesSpec
+    Servant.API.Routes.HeaderSpec
+    Servant.API.Routes.ParamSpec
+    Servant.API.Routes.PathSpec
   build-tool-depends:
       hspec-discover:hspec-discover
   ghc-options:      -Wno-orphans
   build-depends:
     , servant-routes
+    , hspec
+    , QuickCheck
