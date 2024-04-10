@@ -37,6 +37,10 @@ and run your tests on t'Routes'.
 -}
 module Servant.API.Routes
   ( -- * API routes
+
+    -- | First we start with a simple description of a single API route.
+    -- The 'Route' type is not sophisticated, and its internals are hidden.
+    -- Create 'Route's using 'defRoute', and update its fields using the provided [lenses](#g:optics).
     Route
   , defRoute
   , showRoute
@@ -45,10 +49,14 @@ module Servant.API.Routes
   , pattern Routes
 
     -- * Automatic generation of routes for Servant API types
+
+    -- | Now we can automatically generate a t'Routes' for any Servant combinator. In most cases
+    -- the user should never need to implement 'HasRoutes' unless they're hacking on Servant or
+    -- defining their own combinators.
   , HasRoutes (..)
   , printRoutes
 
-    -- * Optics
+    -- * Optics #optics#
   , routeMethod
   , routePath
   , routeParams
@@ -145,17 +153,15 @@ pattern Routes rs <- (unmakeRoutes -> rs)
 {- | Pretty-print a 'Route'. Note that the output is minimal and doesn't contain all the information
 contained in a 'Route'. For full output, use the 'ToJSON' instance.
 
-@
-ghci> showRoute $ defRoute \"POST\"
-"POST /"
-ghci> :{
-ghci| showRoute $
-ghci|   defRoute \"POST\"
-ghci|     & routePath %~ prependPathPart "api/v2"
-ghci|     & routeParams .~ [singleParam @"p1" @T.Text, flagParam @"flag", arrayElemParam @"p2s" @(Maybe Int)]
-ghci| :}
-"POST \/api\/v2?p1=\<Text>&flag&p2s=\<[Maybe Int]>"
-@
+> ghci> showRoute $ defRoute \"POST\"
+> "POST /"
+> ghci> :{
+> ghci| showRoute $
+> ghci|   defRoute \"POST\"
+> ghci|     & routePath %~ prependPathPart "api/v2"
+> ghci|     & routeParams .~ [singleParam @"p1" @T.Text, flagParam @"flag", arrayElemParam @"p2s" @(Maybe Int)]
+> ghci| :}
+> "POST /api/v2?p1=<Text>&flag&p2s=<[Maybe Int]>"
 -}
 showRoute :: Route -> T.Text
 showRoute Route {..} =
@@ -203,21 +209,106 @@ instance ToJSON Routes where
 
 {- | Get a simple list of all the routes in an API.
 
-Refactoring Servant API types is quite
-error-prone, especially when you have to move around lots of ':<|>' and ':>'.
-So it's very possible that the route structure could change in that
-refactoring without being caught by the type-checker.
+One use-case, which was the original motivation for the class, is refactoring Servant APIs
+to use 'NamedRoutes'. It's a fiddly, repetitive, and error-prone process, and it's very
+easy to make small mistakes. A lot of these errors will be caught by the type-checker, e.g.
+if the type signature of a handler function doesn't match the @ServerT@ of its API type.
+However there are some errrors that wouldn't be caught by the type-checker, such as missing
+out path parts.
 
-The 'HasRoutes' class (which is basically a very very simple version of HasOpenApi
-from [servant-openapi3](https://hackage.haskell.org/package/servant-openapi3))
-could help as a sanity check - run 'printRoutes' before and after the refactor,
-and if they give the same output then things are probably fine.
+For example, if our original API looked like
 
-Note that 'printRoutes' only includes the path, method and query parameters.
-For more detailed comparison, use the JSON instance of t'Routes', encode the routes to
-a file (before and after the refactoring), and use jdiff.
+> type API =
+>   "api"
+>     :> "v2"
+>     :> ( "users" :> Get '[JSON] [User]
+>           :<|> "user" :> ReqBody '[JSON] UserData :> Post '[JSON] UserId
+>        )
+>
+> server :: Server API
+> server = listUsers :<|> createUser
+>   where ...
+
+and we refactored to
+
+> data RefactoredAPI mode = RefactoredAPI
+>   { listUsers :: mode :- "api" :> "v2" :> "users" :> Get '[JSON] [User]
+>   , createUser :: mode :- "user" :> ReqBody '[JSON] UserData :> Post '[JSON] UserId
+>   }
+>   deriving Generic
+>
+> server :: Server (NamedRoutes RefactoredAPI)
+> server = RefactoredAPI {listUsers, createUser}
+>   where ...
+
+Oops! We forgot the @"api" :> "v2" :>@ in the 2nd sub-endpoint. However, since the @ServerT@ type
+is unaffected by adding or remove path parts, this will still compile.
+
+However, if we user 'HasRoutes' as a sanity check:
+
+> ghci> printRoutes @API
+> GET /api/v2/users
+> POST /api/v2/user
+>
+> ghci> printRoutes @(NamedRoutes RefactoredAPI)
+> GET /api/v2/users
+> POST /user
+
+Much clearer to see the mistake. For more detailed output, use the 'ToJSON' instance:
+
+> ghci> BL.putStrLn . encodePretty $ getRoutes @API
+> [
+>     {
+>         "auths": [],
+>         "method": "GET",
+>         "params": [],
+>         "path": "/api/v2/users",
+>         "request_body": null,
+>         "request_headers": [],
+>         "response": "[User]",
+>         "response_headers": []
+>     },
+>     {
+>         "auths": [],
+>         "method": "POST",
+>         "params": [],
+>         "path": "/api/v2/user",
+>         "request_body": "UserData",
+>         "request_headers": [],
+>         "response": "UserId",
+>         "response_headers": []
+>     }
+> ]
+>
+> ghci> BL.putStrLn . encodePretty $ getRoutes @(NamedRoutes RefactoredAPI)
+> [
+>     {
+>         "auths": [],
+>         "method": "GET",
+>         "params": [],
+>         "path": "/api/v2/users",
+>         "request_body": null,
+>         "request_headers": [],
+>         "response": "[User]",
+>         "response_headers": []
+>     },
+>     {
+>         "auths": [],
+>         "method": "POST",
+>         "params": [],
+>         "path": "/user",              -- oops!
+>         "request_body": "UserData",
+>         "request_headers": [],
+>         "response": "UserId",
+>         "response_headers": []
+>     }
+> ]
 -}
 class HasRoutes api where
+  -- | Type-level list of API routes for the given API.
+  --
+  -- Since @TypeApplications@ is becoming pervasive, we forego @Proxy@ here in favour
+  -- of @getRoutes \@API@.
   getRoutes :: [Route]
 
 -- | Get all the routes of an API and print them to stdout. See 'showRoute' for examples.
