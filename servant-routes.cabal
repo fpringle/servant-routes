@@ -1,8 +1,9 @@
 cabal-version:      3.0
 name:               servant-routes
 version:            0.1.0.0
--- synopsis:
--- description:
+synopsis:           Generate route descriptions from Servant APIs
+description:
+    See the documentation of 'Servant.API.Routes'.
 license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Frederick Pringle
