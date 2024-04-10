@@ -1,11 +1,26 @@
+args@{ compiler ? "ghc928"
+}:
 let
-  pkg = import ./. {};
-  nixpkgs = import sources.nixpkgs {};
+  inherit (import ./servant-routes.nix args) haskellPackages sources servant-routes;
+
   pre-commit-check = import ./nix/pre-commit.nix;
-  sources = import ./nix/sources.nix;
+
+  shell = servant-routes.envFunc {};
+  headroom-pinned = haskellPackages.callCabal2nix "headroom" sources.headroom {};
 in
-  (pkg.envFunc {}).overrideAttrs {
+  shell.overrideAttrs {
       shellHook = ''
         ${pre-commit-check.shellHook}
       '';
+
+      nativeBuildInputs =
+        with haskellPackages;
+          shell.nativeBuildInputs ++
+            [ cabal-install
+              haskell-language-server
+              hlint
+              fourmolu
+              ghcid
+              headroom-pinned
+            ];
     }
