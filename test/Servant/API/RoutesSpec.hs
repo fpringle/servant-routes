@@ -8,11 +8,11 @@ where
 import Data.Function
 import Data.List
 import qualified Data.Text as T
-import Data.Typeable
 import GHC.Generics
 import Lens.Micro
 import Servant.API
 import Servant.API.Routes
+import Servant.API.Routes.Body
 import Servant.API.Routes.Header
 import Servant.API.Routes.Internal.Path
 import Servant.API.Routes.Param
@@ -31,8 +31,11 @@ type SubAPI3 =
           :<|> "z" :> Header' '[Optional] "h2" Int :> Get '[JSON] [Integer]
        )
 
-intTypeRep :: TypeRep
-intTypeRep = typeRep $ Proxy @Int
+intTypeRepBody :: Body
+intTypeRepBody = oneType @Int
+
+strTypeRepBody :: Body
+strTypeRepBody = oneType @String
 
 infix 1 `shouldBeSorted`
 
@@ -90,16 +93,31 @@ spec = do
   describe "HasRoutes" $ do
     describe "base cases" $ do
       it "EmptyAPI" $ getRoutes @EmptyAPI `shouldBeSorted` []
-      it "UVerb" $ pendingWith "Need to implement issue #5"
+      it "UVerb" $ do
+        getRoutes @(UVerb 'POST '[JSON] '[])
+          `shouldBeSorted` [ defRoute "POST"
+                           ]
+        getRoutes @(UVerb 'POST '[JSON] '[Int])
+          `shouldBeSorted` [ defRoute "POST"
+                              & routeResponseType .~ intTypeRepBody
+                           ]
+        getRoutes @(UVerb 'POST '[JSON] '[Int, String])
+          `shouldBeSorted` [ defRoute "POST"
+                              & routeResponseType .~ intTypeRepBody <> strTypeRepBody
+                           ]
+        getRoutes @(UVerb 'POST '[JSON] '[Int, String])
+          `shouldBeSorted` [ defRoute "POST"
+                              & routeResponseType .~ strTypeRepBody <> intTypeRepBody
+                           ]
       it "Verb" $ do
-        getRoutes @(Post '[JSON] Int) `shouldBeSorted` [defRoute "POST" & routeResponseType ?~ intTypeRep]
+        getRoutes @(Post '[JSON] Int) `shouldBeSorted` [defRoute "POST" & routeResponseType .~ intTypeRepBody]
         getRoutes @(Post '[JSON] (Headers '[Header "h1" String] Int))
           `shouldBeSorted` [ defRoute "POST"
-                              & routeResponseType ?~ intTypeRep
+                              & routeResponseType .~ intTypeRepBody
                               & routeResponseHeaders .~ [mkHeaderRep @"h1" @String]
                            ]
       it "Stream" $ do
-        getRoutes @(Stream 'POST 201 NoFraming JSON Int) `shouldBeSorted` [defRoute "POST" & routeResponseType ?~ intTypeRep]
+        getRoutes @(Stream 'POST 201 NoFraming JSON Int) `shouldBeSorted` [defRoute "POST" & routeResponseType .~ intTypeRepBody]
 
     describe "boring: combinators that don't change routes" $ do
       it "Description" $ unchanged @(Description "desc")
@@ -159,10 +177,14 @@ spec = do
         getRoutes @(QueryParams "h1" Int :> SubAPI2) `shouldBeSorted` addP <$> getRoutes @SubAPI2
         getRoutes @(QueryParams "h1" Int :> SubAPI3) `shouldBeSorted` addP <$> getRoutes @SubAPI3
       it "ReqBody' :>" $ do
-        let addB = routeRequestBody ?~ intTypeRep
+        let addB = routeRequestBody <>~ intTypeRepBody
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI) `shouldBeSorted` addB <$> getRoutes @SubAPI
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldBeSorted` addB <$> getRoutes @SubAPI2
         getRoutes @(ReqBody '[JSON] Int :> SubAPI3) `shouldBeSorted` addB <$> getRoutes @SubAPI3
       it "StreamBody' :>" $ do
-        let addB = routeRequestBody ?~ intTypeRep
+        let addB = routeRequestBody <>~ intTypeRepBody
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI) `shouldBeSorted` addB <$> getRoutes @SubAPI
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldBeSorted` addB <$> getRoutes @SubAPI2
         getRoutes @(StreamBody NoFraming JSON Int :> SubAPI3) `shouldBeSorted` addB <$> getRoutes @SubAPI3
       it "Capture' :>" $ do
         let addC = routePath %~ prependPathPart "<Int>"

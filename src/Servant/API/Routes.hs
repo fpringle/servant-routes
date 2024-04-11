@@ -86,7 +86,9 @@ import Lens.Micro.TH
 import Network.HTTP.Types.Method (Method)
 import Servant.API
 import Servant.API.Modifiers (RequiredArgument)
+import "this" Servant.API.Routes.Body
 import "this" Servant.API.Routes.Header
+import "this" Servant.API.Routes.Internal.Body
 import "this" Servant.API.Routes.Param
 import "this" Servant.API.Routes.Path
 import "this" Servant.API.Routes.Utils
@@ -97,9 +99,9 @@ data Route = Route
   , _routePath :: Path
   , _routeParams :: [Param]
   , _routeRequestHeaders :: [HeaderRep]
-  , _routeRequestBody :: Maybe TypeRep
+  , _routeRequestBody :: Body
   , _routeResponseHeaders :: [HeaderRep]
-  , _routeResponseType :: Maybe TypeRep
+  , _routeResponseType :: Body
   , _routeAuths :: [T.Text]
   }
   deriving (Show, Eq)
@@ -119,9 +121,9 @@ defRoute method =
     , _routePath = rootPath
     , _routeParams = mempty
     , _routeRequestHeaders = mempty
-    , _routeRequestBody = Nothing
+    , _routeRequestBody = mempty
     , _routeResponseHeaders = mempty
-    , _routeResponseType = Nothing
+    , _routeResponseType = mempty
     , _routeAuths = mempty
     }
 
@@ -186,6 +188,13 @@ showRoute Route {..} =
 
 {-# COMPLETE Routes #-}
 
+bodyToJSONAs :: T.Text -> Body -> Value
+bodyToJSONAs lbl = \case
+  NoBody -> Null
+  OneType tRep -> typeRepToJSON tRep
+  ManyTypes tReps ->
+    object [AK.fromText lbl .= fmap typeRepToJSON tReps]
+
 instance ToJSON Route where
   toJSON Route {..} =
     object
@@ -193,9 +202,9 @@ instance ToJSON Route where
       , "path" .= _routePath
       , "params" .= _routeParams
       , "request_headers" .= _routeRequestHeaders
-      , "request_body" .= (typeRepToJSON <$> _routeRequestBody)
+      , "request_body" .= bodyToJSONAs "all_of" _routeRequestBody
       , "response_headers" .= _routeResponseHeaders
-      , "response" .= (typeRepToJSON <$> _routeResponseType)
+      , "response" .= bodyToJSONAs "one_of" _routeResponseType
       , "auths" .= _routeAuths
       ]
 
@@ -341,10 +350,10 @@ instance
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType ?~ response
+        & routeResponseType .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = typeRep $ Proxy @a
+      response = oneType @a
 
 instance
   {-# OVERLAPPING #-}
@@ -358,23 +367,45 @@ instance
     pure $
       defRoute method
         & routeResponseHeaders .~ headers
-        & routeResponseType ?~ response
+        & routeResponseType .~ response
     where
       method = reflectMethod $ Proxy @method
       headers = getHeaderReps @hs
-      response = typeRep $ Proxy @a
+      response = oneType @a
 
 instance
-  (ReflectMethod (method :: StdMethod), Typeable as) =>
+  {-# OVERLAPPING #-}
+  (ReflectMethod (method :: StdMethod)) =>
+  HasRoutes (UVerb method ctypes '[])
+  where
+  getRoutes = pure $ defRoute method
+    where
+      method = reflectMethod $ Proxy @method
+
+instance
+  {-# OVERLAPPING #-}
+  (ReflectMethod (method :: StdMethod), Typeable a) =>
+  HasRoutes (UVerb method ctypes '[a])
+  where
+  getRoutes =
+    pure $
+      defRoute method
+        & routeResponseType .~ response
+    where
+      method = reflectMethod $ Proxy @method
+      response = oneType @a
+
+instance
+  (ReflectMethod (method :: StdMethod), AllTypeable as, Unique as) =>
   HasRoutes (UVerb method ctypes as)
   where
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType ?~ response
+        & routeResponseType .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = typeRep $ Proxy @as
+      response = oneOf @as
 
 instance (HasRoutes l, HasRoutes r) => HasRoutes (l :<|> r) where
   getRoutes = getRoutes @l <> getRoutes @r
@@ -427,9 +458,9 @@ instance (KnownSymbol sym, HasRoutes api) => HasRoutes (QueryFlag sym :> api) wh
       param = flagParam @sym
 
 instance (HasRoutes api, Typeable a) => HasRoutes (ReqBody' mods list a :> api) where
-  getRoutes = getRoutes @api <&> routeRequestBody ?~ reqBody
+  getRoutes = getRoutes @api <&> routeRequestBody <>~ reqBody
     where
-      reqBody = typeRep $ Proxy @a
+      reqBody = oneType @a
 
 instance (HasRoutes api) => HasRoutes (Vault :> api) where
   getRoutes = getRoutes @api
@@ -474,9 +505,9 @@ instance (HasRoutes api) => HasRoutes (RemoteHost :> api) where
   getRoutes = getRoutes @api
 
 instance (HasRoutes api, Typeable a) => HasRoutes (StreamBody' mods framing ct a :> api) where
-  getRoutes = getRoutes @api <&> routeRequestBody ?~ reqBody
+  getRoutes = getRoutes @api <&> routeRequestBody .~ reqBody
     where
-      reqBody = typeRep $ Proxy @a
+      reqBody = oneType @a
 
 instance (HasRoutes api) => HasRoutes (WithNamedContext name subContext api) where
   getRoutes = getRoutes @api
@@ -488,7 +519,7 @@ instance
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType ?~ response
+        & routeResponseType .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = typeRep $ Proxy @a
+      response = oneType @a
