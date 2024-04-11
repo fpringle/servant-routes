@@ -28,7 +28,7 @@ mkHeaderRep ::
 mkHeaderRep =
   HeaderRep
     { _hName = knownSymbolT @sym
-    , _hType = typeRep $ Proxy @a
+    , _hType = typeRepOf @a
     }
 
 {- | Utility class to let us get a value-level list of 'HeaderRep's from a

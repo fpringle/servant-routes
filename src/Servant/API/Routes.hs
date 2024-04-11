@@ -344,7 +344,7 @@ instance
         & routeResponseType ?~ response
     where
       method = reflectMethod $ Proxy @method
-      response = typeRep $ Proxy @a
+      response = typeRepOf @a
 
 instance
   {-# OVERLAPPING #-}
@@ -362,7 +362,7 @@ instance
     where
       method = reflectMethod $ Proxy @method
       headers = getHeaderReps @hs
-      response = typeRep $ Proxy @a
+      response = typeRepOf @a
 
 instance
   (ReflectMethod (method :: StdMethod), Typeable as) =>
@@ -374,7 +374,7 @@ instance
         & routeResponseType ?~ response
     where
       method = reflectMethod $ Proxy @method
-      response = typeRep $ Proxy @as
+      response = typeRepOf @as
 
 instance (HasRoutes l, HasRoutes r) => HasRoutes (l :<|> r) where
   getRoutes = getRoutes @l <> getRoutes @r
@@ -429,7 +429,7 @@ instance (KnownSymbol sym, HasRoutes api) => HasRoutes (QueryFlag sym :> api) wh
 instance (HasRoutes api, Typeable a) => HasRoutes (ReqBody' mods list a :> api) where
   getRoutes = getRoutes @api <&> routeRequestBody ?~ reqBody
     where
-      reqBody = typeRep $ Proxy @a
+      reqBody = typeRepOf @a
 
 instance (HasRoutes api) => HasRoutes (Vault :> api) where
   getRoutes = getRoutes @api
@@ -476,7 +476,7 @@ instance (HasRoutes api) => HasRoutes (RemoteHost :> api) where
 instance (HasRoutes api, Typeable a) => HasRoutes (StreamBody' mods framing ct a :> api) where
   getRoutes = getRoutes @api <&> routeRequestBody ?~ reqBody
     where
-      reqBody = typeRep $ Proxy @a
+      reqBody = typeRepOf @a
 
 instance (HasRoutes api) => HasRoutes (WithNamedContext name subContext api) where
   getRoutes = getRoutes @api
@@ -491,4 +491,4 @@ instance
         & routeResponseType ?~ response
     where
       method = reflectMethod $ Proxy @method
-      response = typeRep $ Proxy @a
+      response = typeRepOf @a
