@@ -34,6 +34,9 @@ type SubAPI3 =
 intTypeRepBody :: Body
 intTypeRepBody = oneType @Int
 
+strTypeRepBody :: Body
+strTypeRepBody = oneType @String
+
 infix 1 `shouldBeSorted`
 
 shouldBeSorted :: (HasCallStack, Show a, Eq a, Ord a) => [a] -> [a] -> Expectation
@@ -90,7 +93,22 @@ spec = do
   describe "HasRoutes" $ do
     describe "base cases" $ do
       it "EmptyAPI" $ getRoutes @EmptyAPI `shouldBeSorted` []
-      it "UVerb" $ pendingWith "Need to implement issue #5"
+      it "UVerb" $ do
+        getRoutes @(UVerb 'POST '[JSON] '[])
+          `shouldBeSorted` [ defRoute "POST"
+                           ]
+        getRoutes @(UVerb 'POST '[JSON] '[Int])
+          `shouldBeSorted` [ defRoute "POST"
+                              & routeResponseType .~ intTypeRepBody
+                           ]
+        getRoutes @(UVerb 'POST '[JSON] '[Int, String])
+          `shouldBeSorted` [ defRoute "POST"
+                              & routeResponseType .~ intTypeRepBody <> strTypeRepBody
+                           ]
+        getRoutes @(UVerb 'POST '[JSON] '[Int, String])
+          `shouldBeSorted` [ defRoute "POST"
+                              & routeResponseType .~ strTypeRepBody <> intTypeRepBody
+                           ]
       it "Verb" $ do
         getRoutes @(Post '[JSON] Int) `shouldBeSorted` [defRoute "POST" & routeResponseType .~ intTypeRepBody]
         getRoutes @(Post '[JSON] (Headers '[Header "h1" String] Int))
