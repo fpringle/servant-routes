@@ -10,6 +10,8 @@ Internal module, subject to change.
 -}
 module Servant.API.Routes.Internal.Body
   ( Body (..)
+  , bodyToList
+  , listToBody
   , AllTypeable (..)
   )
 where
@@ -37,6 +39,23 @@ data Body
   | -- | invariant: list needs to have length > 1
     ManyTypes [TypeRep] -- order not important
   deriving (Show)
+
+-- | Convert a 'Body' to a list of 'TypeRep's. Inverse of 'listToBody'.
+bodyToList :: Body -> [TypeRep]
+bodyToList = \case
+  NoBody -> []
+  OneType tRep -> [tRep]
+  ManyTypes tReps -> tReps
+
+{- | Convert a list of 'TypeRep's to a 'Body'. Inverse of 'listToBody'.
+
+This maintains the invariant that the argument of 'ManyTypes' has to be of length > 1.
+-}
+listToBody :: [TypeRep] -> Body
+listToBody = \case
+  [] -> NoBody
+  [tRep] -> OneType tRep
+  tReps -> ManyTypes tReps
 
 instance Eq Body where
   NoBody == NoBody = True
