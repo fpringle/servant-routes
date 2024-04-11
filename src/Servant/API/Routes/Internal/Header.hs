@@ -20,7 +20,7 @@ import "this" Servant.API.Routes.Utils
 
 {- | Simple term-level representation of a 'Servant.API.Header.Header'.
 
-A type-level @'Servant.API.Header.Header' (sym :: 'Symbol') typ@ should correspond to
+A type-level @'Servant.API.Header.Header' (sym :: 'GHC.TypeLits.Symbol') typ@ should correspond to
 @'HeaderRep' { _hName = str, _hType =  typRep }@, where @str@ is the term-level equivalent
 of @sym@ and @typRep@ is the term-level representation of @typ@.
 -}

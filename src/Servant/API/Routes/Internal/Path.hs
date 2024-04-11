@@ -18,6 +18,7 @@ where
 import Data.Aeson
 import qualified Data.Text as T
 
+-- | Standard path separator @"/"@.
 pathSeparator :: T.Text
 pathSeparator = "/"
 

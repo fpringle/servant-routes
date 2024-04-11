@@ -1,5 +1,3 @@
-{-# LANGUAGE PolyKinds #-}
-
 {- |
 Module      : Servant.API.Routes.Utils
 Copyright   : (c) Frederick Pringle, 2024
