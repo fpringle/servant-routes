@@ -6,7 +6,6 @@ module Servant.API.RoutesSpec
 where
 
 import Data.Function
-import Data.List
 import qualified Data.Text as T
 import GHC.Generics
 import Lens.Micro
@@ -37,11 +36,6 @@ intTypeRepBody = oneType @Int
 strTypeRepBody :: Body
 strTypeRepBody = oneType @String
 
-infix 1 `shouldBeSorted`
-
-shouldBeSorted :: (HasCallStack, Show a, Eq a, Ord a) => [a] -> [a] -> Expectation
-shouldBeSorted = shouldBe `on` sort
-
 #if MIN_VERSION_servant(0,19,0)
 data API mode = API
   { ep1 :: mode :- SubAPI
@@ -54,7 +48,7 @@ sameRoutes ::
   forall l r.
   (HasRoutes l, HasRoutes r) =>
   Expectation
-sameRoutes = getRoutes @l `shouldBeSorted` getRoutes @r
+sameRoutes = getRoutes @l `shouldMatchList` getRoutes @r
 
 sameRoutesAsSub ::
   forall l.
@@ -92,32 +86,32 @@ spec = do
       it "works" pending
   describe "HasRoutes" $ do
     describe "base cases" $ do
-      it "EmptyAPI" $ getRoutes @EmptyAPI `shouldBeSorted` []
+      it "EmptyAPI" $ getRoutes @EmptyAPI `shouldMatchList` []
       it "UVerb" $ do
         getRoutes @(UVerb 'POST '[JSON] '[])
-          `shouldBeSorted` [ defRoute "POST"
-                           ]
+          `shouldMatchList` [ defRoute "POST"
+                            ]
         getRoutes @(UVerb 'POST '[JSON] '[Int])
-          `shouldBeSorted` [ defRoute "POST"
-                              & routeResponseType .~ intTypeRepBody
-                           ]
+          `shouldMatchList` [ defRoute "POST"
+                                & routeResponseType .~ intTypeRepBody
+                            ]
         getRoutes @(UVerb 'POST '[JSON] '[Int, String])
-          `shouldBeSorted` [ defRoute "POST"
-                              & routeResponseType .~ intTypeRepBody <> strTypeRepBody
-                           ]
+          `shouldMatchList` [ defRoute "POST"
+                                & routeResponseType .~ intTypeRepBody <> strTypeRepBody
+                            ]
         getRoutes @(UVerb 'POST '[JSON] '[Int, String])
-          `shouldBeSorted` [ defRoute "POST"
-                              & routeResponseType .~ strTypeRepBody <> intTypeRepBody
-                           ]
+          `shouldMatchList` [ defRoute "POST"
+                                & routeResponseType .~ strTypeRepBody <> intTypeRepBody
+                            ]
       it "Verb" $ do
-        getRoutes @(Post '[JSON] Int) `shouldBeSorted` [defRoute "POST" & routeResponseType .~ intTypeRepBody]
+        getRoutes @(Post '[JSON] Int) `shouldMatchList` [defRoute "POST" & routeResponseType .~ intTypeRepBody]
         getRoutes @(Post '[JSON] (Headers '[Header "h1" String] Int))
-          `shouldBeSorted` [ defRoute "POST"
-                              & routeResponseType .~ intTypeRepBody
-                              & routeResponseHeaders .~ [mkHeaderRep @"h1" @String]
-                           ]
+          `shouldMatchList` [ defRoute "POST"
+                                & routeResponseType .~ intTypeRepBody
+                                & routeResponseHeaders .~ [mkHeaderRep @"h1" @String]
+                            ]
       it "Stream" $ do
-        getRoutes @(Stream 'POST 201 NoFraming JSON Int) `shouldBeSorted` [defRoute "POST" & routeResponseType .~ intTypeRepBody]
+        getRoutes @(Stream 'POST 201 NoFraming JSON Int) `shouldMatchList` [defRoute "POST" & routeResponseType .~ intTypeRepBody]
 
     describe "boring: combinators that don't change routes" $ do
       it "Description" $ unchanged @(Description "desc")
@@ -130,68 +124,68 @@ spec = do
       it "WithNamedContext" $ sameRoutesAsSub @(WithNamedContext "name" '[] SubAPI)
 
     describe "recursive: some combinators combine or alter routes" $ do
-      it ":<|>" $ getRoutes @(SubAPI :<|> SubAPI2) `shouldBeSorted` getRoutes @SubAPI <> getRoutes @SubAPI2
+      it ":<|>" $ getRoutes @(SubAPI :<|> SubAPI2) `shouldMatchList` getRoutes @SubAPI <> getRoutes @SubAPI2
       it "NoContentVerb" $
-        showRoute <$> getRoutes @(NoContentVerb 'POST) `shouldBeSorted` ["POST /"]
+        showRoute <$> getRoutes @(NoContentVerb 'POST) `shouldMatchList` ["POST /"]
       it "Symbol :>" $ do
         let prep = routePath %~ prependPathPart "sym"
-        getRoutes @("sym" :> SubAPI) `shouldBeSorted` prep <$> getRoutes @SubAPI
-        getRoutes @("sym" :> SubAPI2) `shouldBeSorted` prep <$> getRoutes @SubAPI2
-        getRoutes @("sym" :> SubAPI3) `shouldBeSorted` prep <$> getRoutes @SubAPI3
+        getRoutes @("sym" :> SubAPI) `shouldMatchList` prep <$> getRoutes @SubAPI
+        getRoutes @("sym" :> SubAPI2) `shouldMatchList` prep <$> getRoutes @SubAPI2
+        getRoutes @("sym" :> SubAPI3) `shouldMatchList` prep <$> getRoutes @SubAPI3
       it "Header' :>" $ do
         let addH = routeRequestHeaders %~ (mkHeaderRep @"h1" @Int :)
-        getRoutes @(Header' '[Required] "h1" Int :> SubAPI) `shouldBeSorted` addH <$> getRoutes @SubAPI
-        getRoutes @(Header' '[Required] "h1" Int :> SubAPI2) `shouldBeSorted` addH <$> getRoutes @SubAPI2
-        getRoutes @(Header' '[Required] "h1" Int :> SubAPI3) `shouldBeSorted` addH <$> getRoutes @SubAPI3
+        getRoutes @(Header' '[Required] "h1" Int :> SubAPI) `shouldMatchList` addH <$> getRoutes @SubAPI
+        getRoutes @(Header' '[Required] "h1" Int :> SubAPI2) `shouldMatchList` addH <$> getRoutes @SubAPI2
+        getRoutes @(Header' '[Required] "h1" Int :> SubAPI3) `shouldMatchList` addH <$> getRoutes @SubAPI3
         let addHOptional = routeRequestHeaders %~ (mkHeaderRep @"h1" @(Maybe Int) :)
-        getRoutes @(Header' '[Optional] "h1" Int :> SubAPI) `shouldBeSorted` addHOptional <$> getRoutes @SubAPI
-        getRoutes @(Header' '[Optional] "h1" Int :> SubAPI2) `shouldBeSorted` addHOptional <$> getRoutes @SubAPI2
-        getRoutes @(Header' '[Optional] "h1" Int :> SubAPI3) `shouldBeSorted` addHOptional <$> getRoutes @SubAPI3
+        getRoutes @(Header' '[Optional] "h1" Int :> SubAPI) `shouldMatchList` addHOptional <$> getRoutes @SubAPI
+        getRoutes @(Header' '[Optional] "h1" Int :> SubAPI2) `shouldMatchList` addHOptional <$> getRoutes @SubAPI2
+        getRoutes @(Header' '[Optional] "h1" Int :> SubAPI3) `shouldMatchList` addHOptional <$> getRoutes @SubAPI3
       it "BasicAuth :>" $ do
         let addAuth = routeAuths %~ ("Basic realm" :)
-        getRoutes @(BasicAuth "realm" String :> SubAPI) `shouldBeSorted` addAuth <$> getRoutes @SubAPI
-        getRoutes @(BasicAuth "realm" String :> SubAPI2) `shouldBeSorted` addAuth <$> getRoutes @SubAPI2
-        getRoutes @(BasicAuth "realm" String :> SubAPI3) `shouldBeSorted` addAuth <$> getRoutes @SubAPI3
+        getRoutes @(BasicAuth "realm" String :> SubAPI) `shouldMatchList` addAuth <$> getRoutes @SubAPI
+        getRoutes @(BasicAuth "realm" String :> SubAPI2) `shouldMatchList` addAuth <$> getRoutes @SubAPI2
+        getRoutes @(BasicAuth "realm" String :> SubAPI3) `shouldMatchList` addAuth <$> getRoutes @SubAPI3
       it "AuthProtect :>" $ do
         let addAuth = routeAuths %~ ("my-special-auth" :)
-        getRoutes @(AuthProtect "my-special-auth" :> SubAPI) `shouldBeSorted` addAuth <$> getRoutes @SubAPI
-        getRoutes @(AuthProtect "my-special-auth" :> SubAPI2) `shouldBeSorted` addAuth <$> getRoutes @SubAPI2
-        getRoutes @(AuthProtect "my-special-auth" :> SubAPI3) `shouldBeSorted` addAuth <$> getRoutes @SubAPI3
+        getRoutes @(AuthProtect "my-special-auth" :> SubAPI) `shouldMatchList` addAuth <$> getRoutes @SubAPI
+        getRoutes @(AuthProtect "my-special-auth" :> SubAPI2) `shouldMatchList` addAuth <$> getRoutes @SubAPI2
+        getRoutes @(AuthProtect "my-special-auth" :> SubAPI3) `shouldMatchList` addAuth <$> getRoutes @SubAPI3
       it "QueryFlag :>" $ do
         let addFlag = routeParams %~ (flagParam @"sym" :)
-        getRoutes @(QueryFlag "sym" :> SubAPI) `shouldBeSorted` addFlag <$> getRoutes @SubAPI
-        getRoutes @(QueryFlag "sym" :> SubAPI2) `shouldBeSorted` addFlag <$> getRoutes @SubAPI2
-        getRoutes @(QueryFlag "sym" :> SubAPI3) `shouldBeSorted` addFlag <$> getRoutes @SubAPI3
+        getRoutes @(QueryFlag "sym" :> SubAPI) `shouldMatchList` addFlag <$> getRoutes @SubAPI
+        getRoutes @(QueryFlag "sym" :> SubAPI2) `shouldMatchList` addFlag <$> getRoutes @SubAPI2
+        getRoutes @(QueryFlag "sym" :> SubAPI3) `shouldMatchList` addFlag <$> getRoutes @SubAPI3
       it "QueryParam' :>" $ do
         let addP = routeParams %~ (singleParam @"h1" @Int :)
-        getRoutes @(QueryParam' '[Required] "h1" Int :> SubAPI) `shouldBeSorted` addP <$> getRoutes @SubAPI
-        getRoutes @(QueryParam' '[Required] "h1" Int :> SubAPI2) `shouldBeSorted` addP <$> getRoutes @SubAPI2
-        getRoutes @(QueryParam' '[Required] "h1" Int :> SubAPI3) `shouldBeSorted` addP <$> getRoutes @SubAPI3
+        getRoutes @(QueryParam' '[Required] "h1" Int :> SubAPI) `shouldMatchList` addP <$> getRoutes @SubAPI
+        getRoutes @(QueryParam' '[Required] "h1" Int :> SubAPI2) `shouldMatchList` addP <$> getRoutes @SubAPI2
+        getRoutes @(QueryParam' '[Required] "h1" Int :> SubAPI3) `shouldMatchList` addP <$> getRoutes @SubAPI3
         let addPOptional = routeParams %~ (singleParam @"h1" @(Maybe Int) :)
-        getRoutes @(QueryParam' '[Optional] "h1" Int :> SubAPI) `shouldBeSorted` addPOptional <$> getRoutes @SubAPI
-        getRoutes @(QueryParam' '[Optional] "h1" Int :> SubAPI2) `shouldBeSorted` addPOptional <$> getRoutes @SubAPI2
-        getRoutes @(QueryParam' '[Optional] "h1" Int :> SubAPI3) `shouldBeSorted` addPOptional <$> getRoutes @SubAPI3
+        getRoutes @(QueryParam' '[Optional] "h1" Int :> SubAPI) `shouldMatchList` addPOptional <$> getRoutes @SubAPI
+        getRoutes @(QueryParam' '[Optional] "h1" Int :> SubAPI2) `shouldMatchList` addPOptional <$> getRoutes @SubAPI2
+        getRoutes @(QueryParam' '[Optional] "h1" Int :> SubAPI3) `shouldMatchList` addPOptional <$> getRoutes @SubAPI3
       it "QueryParams :>" $ do
         let addP = routeParams %~ (arrayElemParam @"h1" @Int :)
-        getRoutes @(QueryParams "h1" Int :> SubAPI) `shouldBeSorted` addP <$> getRoutes @SubAPI
-        getRoutes @(QueryParams "h1" Int :> SubAPI2) `shouldBeSorted` addP <$> getRoutes @SubAPI2
-        getRoutes @(QueryParams "h1" Int :> SubAPI3) `shouldBeSorted` addP <$> getRoutes @SubAPI3
+        getRoutes @(QueryParams "h1" Int :> SubAPI) `shouldMatchList` addP <$> getRoutes @SubAPI
+        getRoutes @(QueryParams "h1" Int :> SubAPI2) `shouldMatchList` addP <$> getRoutes @SubAPI2
+        getRoutes @(QueryParams "h1" Int :> SubAPI3) `shouldMatchList` addP <$> getRoutes @SubAPI3
       it "ReqBody' :>" $ do
         let addB = routeRequestBody <>~ intTypeRepBody
-        getRoutes @(ReqBody '[JSON] Int :> SubAPI) `shouldBeSorted` addB <$> getRoutes @SubAPI
-        getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldBeSorted` addB <$> getRoutes @SubAPI2
-        getRoutes @(ReqBody '[JSON] Int :> SubAPI3) `shouldBeSorted` addB <$> getRoutes @SubAPI3
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI) `shouldMatchList` addB <$> getRoutes @SubAPI
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldMatchList` addB <$> getRoutes @SubAPI2
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI3) `shouldMatchList` addB <$> getRoutes @SubAPI3
       it "StreamBody' :>" $ do
         let addB = routeRequestBody <>~ intTypeRepBody
-        getRoutes @(ReqBody '[JSON] Int :> SubAPI) `shouldBeSorted` addB <$> getRoutes @SubAPI
-        getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldBeSorted` addB <$> getRoutes @SubAPI2
-        getRoutes @(StreamBody NoFraming JSON Int :> SubAPI3) `shouldBeSorted` addB <$> getRoutes @SubAPI3
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI) `shouldMatchList` addB <$> getRoutes @SubAPI
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldMatchList` addB <$> getRoutes @SubAPI2
+        getRoutes @(StreamBody NoFraming JSON Int :> SubAPI3) `shouldMatchList` addB <$> getRoutes @SubAPI3
       it "Capture' :>" $ do
         let addC = routePath %~ prependPathPart "<Int>"
-        getRoutes @(Capture "cap" Int :> SubAPI) `shouldBeSorted` addC <$> getRoutes @SubAPI
-        getRoutes @(Capture "cap" Int :> SubAPI2) `shouldBeSorted` addC <$> getRoutes @SubAPI2
-        getRoutes @(Capture "cap" Int :> SubAPI3) `shouldBeSorted` addC <$> getRoutes @SubAPI3
+        getRoutes @(Capture "cap" Int :> SubAPI) `shouldMatchList` addC <$> getRoutes @SubAPI
+        getRoutes @(Capture "cap" Int :> SubAPI2) `shouldMatchList` addC <$> getRoutes @SubAPI2
+        getRoutes @(Capture "cap" Int :> SubAPI3) `shouldMatchList` addC <$> getRoutes @SubAPI3
 #if MIN_VERSION_servant(0,19,0)
       it "NamedRoutes" $
-        getRoutes @(NamedRoutes API) `shouldBeSorted` getRoutes @SubAPI <> getRoutes @SubAPI2 <> getRoutes @SubAPI3
+        getRoutes @(NamedRoutes API) `shouldMatchList` getRoutes @SubAPI <> getRoutes @SubAPI2 <> getRoutes @SubAPI3
 #endif
