@@ -160,9 +160,13 @@ spec = do
         getRoutes @(QueryParams "h1" Int :> SubAPI3) `shouldBeSorted` addP <$> getRoutes @SubAPI3
       it "ReqBody' :>" $ do
         let addB = routeRequestBody <>~ intTypeRepBody
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI) `shouldBeSorted` addB <$> getRoutes @SubAPI
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldBeSorted` addB <$> getRoutes @SubAPI2
         getRoutes @(ReqBody '[JSON] Int :> SubAPI3) `shouldBeSorted` addB <$> getRoutes @SubAPI3
       it "StreamBody' :>" $ do
         let addB = routeRequestBody <>~ intTypeRepBody
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI) `shouldBeSorted` addB <$> getRoutes @SubAPI
+        getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldBeSorted` addB <$> getRoutes @SubAPI2
         getRoutes @(StreamBody NoFraming JSON Int :> SubAPI3) `shouldBeSorted` addB <$> getRoutes @SubAPI3
       it "Capture' :>" $ do
         let addC = routePath %~ prependPathPart "<Int>"
