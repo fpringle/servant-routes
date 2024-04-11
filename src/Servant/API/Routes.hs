@@ -188,6 +188,13 @@ showRoute Route {..} =
 
 {-# COMPLETE Routes #-}
 
+bodyToJSONAs :: T.Text -> Body -> Value
+bodyToJSONAs lbl = \case
+  NoBody -> Null
+  OneType tRep -> typeRepToJSON tRep
+  ManyTypes tReps ->
+    object [AK.fromText lbl .= fmap typeRepToJSON tReps]
+
 instance ToJSON Route where
   toJSON Route {..} =
     object
@@ -195,9 +202,9 @@ instance ToJSON Route where
       , "path" .= _routePath
       , "params" .= _routeParams
       , "request_headers" .= _routeRequestHeaders
-      , "request_body" .= _routeRequestBody
+      , "request_body" .= bodyToJSONAs "all_of" _routeRequestBody
       , "response_headers" .= _routeResponseHeaders
-      , "response" .= _routeResponseType
+      , "response" .= bodyToJSONAs "one_of" _routeResponseType
       , "auths" .= _routeAuths
       ]
 

@@ -14,7 +14,6 @@ module Servant.API.Routes.Internal.Body
   )
 where
 
-import qualified Data.Aeson as A
 import Data.Kind (Type)
 import Data.List (nub, sort)
 import Data.Typeable
@@ -44,12 +43,6 @@ instance Eq Body where
   OneType t1 == OneType t2 = t1 == t2
   ManyTypes ts1 == ManyTypes ts2 = sort (nub ts1) == sort (nub ts2)
   _ == _ = False
-
-instance A.ToJSON Body where
-  toJSON = \case
-    NoBody -> A.Null
-    OneType tRep -> typeRepToJSON tRep
-    ManyTypes tReps -> A.toJSON $ typeRepToJSON <$> tReps
 
 instance Semigroup Body where
   NoBody <> x = x
