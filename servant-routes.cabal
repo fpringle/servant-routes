@@ -100,6 +100,7 @@ test-suite servant-routes-test
     Servant.API.Routes.HeaderSpec
     Servant.API.Routes.ParamSpec
     Servant.API.Routes.PathSpec
+    Servant.API.Routes.BodySpec
   build-tool-depends:
       hspec-discover:hspec-discover
   ghc-options:      -Wno-orphans
