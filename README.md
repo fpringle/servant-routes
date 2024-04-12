@@ -1,6 +1,18 @@
 # servant-routes
 
--- intro description
+This package alllows us to automatically convert type-level Servant representations of APIs to concrete term-level representations.
+
+See `Servant.API.Routes` for in-depth documentation.
+
+## Contents
+
+* [Motivation](#motivation)
+* [Examples](#examples)
+    * [Basic usage with servant combinators](#basic-usage-with-servant-combinators)
+    * [Same example using NamedRoutes](#same-example-using-namedroutes)
+    * [Writing HasRoutes instances for custom combinators](#writing-hasroutes-instances-for-custom-combinators)
+* [Back story](#back-story)
+
 
 ## Motivation
 
@@ -260,7 +272,7 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
 
 </details>
 
-#### Writing `HasRoutes` instances for custom combinators
+#### Writing `HasRoutes` instances for custom combinators:
 
 For the most part you'll be able to use `getRoutes` out of the box, without worrying about `HasRoutes` and other internals.
 But sometimes you'll want to extend `servant` with your own custom combinators, writing `HasServer` or `HasClient` for them etc.
