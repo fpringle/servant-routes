@@ -72,6 +72,7 @@ library
     , extensions
   exposed-modules:
     Servant.API.Routes
+    Servant.API.Routes.Route
     Servant.API.Routes.Header
     Servant.API.Routes.Param
     Servant.API.Routes.Path

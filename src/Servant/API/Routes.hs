@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 {- |
@@ -38,16 +37,11 @@ and run your tests on t'Routes'.
 -}
 module Servant.API.Routes
   ( -- * API routes
-
-    -- | First we start with a simple description of a single API route.
-    -- The 'Route' type is not sophisticated, and its internals are hidden.
-    -- Create 'Route's using 'defRoute', and update its fields using the provided [lenses](#g:optics).
-    Route
-  , defRoute
-  , showRoute
-  , Routes
+    Routes
   , unRoutes
   , pattern Routes
+  , Route
+  , defRoute
 
     -- * Automatic generation of routes for Servant API types
 
@@ -56,16 +50,6 @@ module Servant.API.Routes
     -- defining their own combinators.
   , HasRoutes (..)
   , printRoutes
-
-    -- * Optics #optics#
-  , routeMethod
-  , routePath
-  , routeParams
-  , routeRequestHeaders
-  , routeRequestBody
-  , routeResponseHeaders
-  , routeResponseType
-  , routeAuths
   )
 where
 
@@ -74,15 +58,12 @@ import qualified Data.Aeson.Key as AK (fromText)
 import qualified Data.Aeson.Types as A (Pair)
 import Data.Bifunctor (bimap)
 import Data.Foldable (foldl', traverse_)
-import Data.Function (on)
 import qualified Data.Map as Map
-import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.IO as T
 import Data.Typeable
 import GHC.TypeLits (KnownSymbol, Symbol)
 import Lens.Micro
-import Lens.Micro.TH
 import Network.HTTP.Types.Method (Method)
 import Servant.API
 import Servant.API.Modifiers (RequiredArgument)
@@ -91,41 +72,8 @@ import "this" Servant.API.Routes.Header
 import "this" Servant.API.Routes.Internal.Body
 import "this" Servant.API.Routes.Param
 import "this" Servant.API.Routes.Path
+import "this" Servant.API.Routes.Route
 import "this" Servant.API.Routes.Utils
-
--- | A simple representation of a single endpoint of an API.
-data Route = Route
-  { _routeMethod :: Method
-  , _routePath :: Path
-  , _routeParams :: [Param]
-  , _routeRequestHeaders :: [HeaderRep]
-  , _routeRequestBody :: Body
-  , _routeResponseHeaders :: [HeaderRep]
-  , _routeResponseType :: Body
-  , _routeAuths :: [T.Text]
-  }
-  deriving (Show, Eq)
-
-makeLenses ''Route
-
-instance Ord Route where
-  compare = compare `on` \Route {..} -> (_routePath, _routeMethod)
-
-{- | Given a REST 'Method', create a default 'Route': root path (@"/"@) with no params,
-headers, body, auths, or response.
--}
-defRoute :: Method -> Route
-defRoute method =
-  Route
-    { _routeMethod = method
-    , _routePath = rootPath
-    , _routeParams = mempty
-    , _routeRequestHeaders = mempty
-    , _routeRequestBody = mempty
-    , _routeResponseHeaders = mempty
-    , _routeResponseType = mempty
-    , _routeAuths = mempty
-    }
 
 {- | To render all of an API's 'Route's as JSON, we need to identify each route by its
  path AND its method (since 2 routes can have the same path but different method).
@@ -142,8 +90,8 @@ makeRoutes = UnsafeRoutes . foldl' insert mempty
   where
     insert acc r = Map.insertWith (<>) path subMap acc
       where
-        path = _routePath r
-        method = _routeMethod r
+        path = r ^. routePath
+        method = r ^. routeMethod
         subMap = Map.singleton method r
 
 unmakeRoutes :: Routes -> [Route]
@@ -157,56 +105,7 @@ pattern Routes rs <- (unmakeRoutes -> rs)
   where
     Routes = makeRoutes
 
-{- | Pretty-print a 'Route'. Note that the output is minimal and doesn't contain all the information
-contained in a 'Route'. For full output, use the 'ToJSON' instance.
-
-> ghci> showRoute $ defRoute \"POST\"
-> "POST /"
-> ghci> :{
-> ghci| showRoute $
-> ghci|   defRoute \"POST\"
-> ghci|     & routePath %~ prependPathPart "api/v2"
-> ghci|     & routeParams .~ [singleParam @"p1" @T.Text, flagParam @"flag", arrayElemParam @"p2s" @(Maybe Int)]
-> ghci| :}
-> "POST /api/v2?p1=<Text>&flag&p2s=<[Maybe Int]>"
--}
-showRoute :: Route -> T.Text
-showRoute Route {..} =
-  mconcat
-    [ method
-    , " "
-    , path
-    , params
-    ]
-  where
-    method = TE.decodeUtf8 _routeMethod
-    path = renderPath _routePath
-    params =
-      if null _routeParams
-        then ""
-        else "?" <> T.intercalate "&" (renderParam <$> _routeParams)
-
 {-# COMPLETE Routes #-}
-
-bodyToJSONAs :: T.Text -> Body -> Value
-bodyToJSONAs lbl = \case
-  NoBody -> Null
-  OneType tRep -> typeRepToJSON tRep
-  ManyTypes tReps ->
-    object [AK.fromText lbl .= fmap typeRepToJSON tReps]
-
-instance ToJSON Route where
-  toJSON Route {..} =
-    object
-      [ "method" .= TE.decodeUtf8 _routeMethod
-      , "path" .= _routePath
-      , "params" .= _routeParams
-      , "request_headers" .= _routeRequestHeaders
-      , "request_body" .= bodyToJSONAs "all_of" _routeRequestBody
-      , "response_headers" .= _routeResponseHeaders
-      , "response" .= bodyToJSONAs "one_of" _routeResponseType
-      , "auths" .= _routeAuths
-      ]
 
 instance ToJSON Routes where
   toJSON = object . fmap mkPair . Map.assocs . unRoutes
