@@ -65,6 +65,7 @@ library
       warnings
     , deps
     , extensions
+  ghc-options: -Wunused-packages
   exposed-modules:
     Servant.API.Routes
     Servant.API.Routes.Route
