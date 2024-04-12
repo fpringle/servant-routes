@@ -13,10 +13,9 @@ import Servant.API
 import Servant.API.Routes
 import Servant.API.Routes.Body
 import Servant.API.Routes.Header
-import Servant.API.Routes.Internal.Path
 import Servant.API.Routes.Param
-import "this" Servant.API.Routes.ParamSpec hiding (spec)
 import Servant.API.Routes.Path
+import Servant.API.Routes.Route
 import Test.Hspec as H
 
 type SubAPI = ReqBody '[JSON] String :> Post '[JSON] Int
@@ -64,23 +63,6 @@ unchanged = sameRoutesAsSub @(l :> SubAPI)
 
 spec :: Spec
 spec = do
-  describe "Route" $ do
-    describe "showRoute" $ do
-      it "renders default route correctly" $
-        showRoute (defRoute "POST") `shouldBe` "POST " <> pathSeparator
-      it "renders path correctly" $
-        let route =
-              defRoute "GET"
-                & routePath .~ Path ["api", "v2"]
-            expected = "GET /api/v2"
-        in  showRoute route `shouldBe` expected
-      it "renders query params correctly" $
-        let route =
-              defRoute "PUT"
-                & routePath .~ Path ["api", "v2"]
-                & routeParams .~ [sing, arrayElem, flag]
-            expected = "PUT /api/v2?" <> T.intercalate "&" [singExpected, arrayElemExpected, flagExpected]
-        in  showRoute route `shouldBe` expected
   describe "Routes" $ do
     describe "makeRoutes/unmakeRoutes" $
       it "works" pending

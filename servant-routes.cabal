@@ -98,6 +98,7 @@ test-suite servant-routes-test
   main-is:          Spec.hs
   other-modules:
     Servant.API.RoutesSpec
+    Servant.API.Routes.RouteSpec
     Servant.API.Routes.HeaderSpec
     Servant.API.Routes.ParamSpec
     Servant.API.Routes.PathSpec
