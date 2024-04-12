@@ -25,7 +25,8 @@ around lots of ':<|>' and ':>'.  So it's very possible that the route structure 
 change in that refactoring, /without being caught by the type-checker/.
 
 The 'HasRoutes' class could help as a golden test - run 'getRoutes' before and after
-the refactor, and if they give the same result.
+the refactor, and if they give the same result you can be much more confident that the
+refactor didn't introduce difficult bugs.
 
 /Note that 'printRoutes' only includes the path, method and query parameters.
 For more detailed comparison, use the JSON instance of t'Routes', encode the routes to
