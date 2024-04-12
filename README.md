@@ -4,6 +4,18 @@
 
 ## Motivation
 
+Refactoring Servant API types is quite error-prone, especially when you have to move
+around lots of `:<|>`s and `:>`s.  So it's very possible that the route structure could
+change in that refactoring, _without being caught by the type-checker_.
+
+The `HasRoutes` class could help as a "golden test" - run `getRoutes` before and after the refactor, and if they give the same
+result you can be much more confident that the refactor didn't introduce difficult bugs.
+
+Another use-case is in testing: some Haskellers use type families to modify Servant APIs, for example
+to add endpoints or authorisation headers. Types are hard to test, but terms are easy. Use `HasRoutes`
+and run your tests on `Routes`.
+
+
 ## Examples
 
 #### Basic usage with `servant` combinators:
@@ -384,8 +396,27 @@ Note that each route is the same as above, but with an extra `response_header` `
 
 </details>
 
----
 
-Credits
+## Back story
 
-CA shoutout
+The scenario I described in [Motivation](#motivation) arose while I was working with @asheshambasta at [CentralApp](https://www.centralapp.com/),
+one of my freelancing clients. The CentralApp backend is a distributed system comprising of 565 Servant endpoints across 7 different services
+(plus several more services that aren't using Servant). Many of these endpoints are deeply nested, and as anyone familiar with Servant knows, debugging
+error messages can be very frustrating. The best solution to this problem is to use [NamedRoutes](https://hackage.haskell.org/package/servant/docs/Servant-API.html#t:NamedRoutes)
+and derive `HasServer` instances using `Generic`. I took on the task of refactoring _every one_ of those 565 endpoints to use `NamedRoutes` instead of
+`:<|>` and `:>`.
+
+Not only was this process fiddly and tedious, it was also potentially error-prone. The type-checker helps, of course, and will let you know if you accidentally
+swapped 2 handler functions. However, what if you miss out or misspell a path part (e.g. `"api" :> ...`)? These have no effect on the `ServerT` instances, and thus
+can't be caught by the type-checker. We wouldn't know if we made this kind of error until after deployment, when an endpoint would suddenly be at completely the wrong location,
+or expecting `QueryParam`s with the names switched round, or many other bugs caused by human error.
+
+Having worked with [servant-openapi3](https://hackage.haskell.org/package/servant-openapi3), I got the idea for a much simpler version in order to solve the above problem.
+If I could use a similar mechanism to convert API types to term-level values describing the shape and semantics of all the routes of the API, I could compare the
+representation _before_ and _after_ the refactoring. If the lists of routes were identical, and assuming my representation of the routes was accurate and expressive enough,
+I could be confident that I wasn't introducing any subtle bugs.
+
+Fortunately, this approach worked! After refactoring those 565 endpoints to use `NamedRoutes`, I ran `getRoutes` and compared the output to the output from the commit _before_
+the refactor. I used [jdiff](https://github.com/networktocode/jdiff) to compare the outputs in JSON form. The comparison revealed that _one_ endpoint had a subtle bug:
+it was missing a path part, as described above. And the type-checker didn't catch the mistake, which confirmed the need for this package!
+Having fixed the mistake, I deployed the refactoring without a single issue.
