@@ -4,7 +4,7 @@ let
   sources = import ./nix/sources.nix;
   nixpkgs = import sources.nixpkgs { inherit config; };
 
-  haskellPackages = nixpkgs.haskell.packages.${compiler};
+  haskellPackages = nixpkgs.haskellPackages;
 
   mkOverrides = super: {
   };
@@ -18,7 +18,7 @@ let
   };
 in {
   servant-routes =
-    haskellPackages.developPackage {
+    nixpkgs.haskellPackages.developPackage {
       root = ./.;
       name = "servant-routes";
       returnShellEnv = false;
@@ -27,6 +27,5 @@ in {
   inherit
     sources
     nixpkgs
-    compiler
-    haskellPackages;
+    compiler;
 }

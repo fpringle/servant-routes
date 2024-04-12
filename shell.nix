@@ -1,12 +1,13 @@
 args@{ compiler ? "ghc928"
 }:
 let
-  inherit (import ./servant-routes.nix args) haskellPackages sources servant-routes;
+  inherit (import ./servant-routes.nix args)
+      nixpkgs sources servant-routes;
 
   pre-commit-check = import ./nix/pre-commit.nix;
 
   shell = servant-routes.envFunc {};
-  headroom-pinned = haskellPackages.callCabal2nix "headroom" sources.headroom {};
+  headroom-pinned = nixpkgs.haskellPackages.callCabal2nix "headroom" sources.headroom {};
 in
   shell.overrideAttrs {
       shellHook = ''
@@ -14,7 +15,7 @@ in
       '';
 
       nativeBuildInputs =
-        with haskellPackages;
+        with nixpkgs.haskellPackages;
           shell.nativeBuildInputs ++
             [ cabal-install
               haskell-language-server
