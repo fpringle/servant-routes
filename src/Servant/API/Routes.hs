@@ -273,6 +273,7 @@ instance
       headers = getHeaderReps @hs
       response = oneType @a
 
+#if MIN_VERSION_servant(0,18,1)
 instance
   {-# OVERLAPPING #-}
   (ReflectMethod (method :: StdMethod)) =>
@@ -306,6 +307,7 @@ instance
     where
       method = reflectMethod $ Proxy @method
       response = oneOf @as
+#endif
 
 instance (HasRoutes l, HasRoutes r) => HasRoutes (l :<|> r) where
   getRoutes = getRoutes @l <> getRoutes @r
