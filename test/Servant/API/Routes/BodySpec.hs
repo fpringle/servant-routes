@@ -72,8 +72,8 @@ spec = do
       bodyToList intTypeRepBody `shouldMatchList` [intTypeRep]
       listToBody [intTypeRep] `shouldBe` intTypeRepBody
     it "manyTypes" $ do
-      bodyToList (intTypeRepBody <> strTypeRepBody) `shouldMatchList` [intTypeRep, strTypeRep]
-      listToBody [intTypeRep, strTypeRep] `shouldBe` (intTypeRepBody <> strTypeRepBody)
+      bodyToList (manyTypes @'[Int, String]) `shouldMatchList` [intTypeRep, strTypeRep]
+      listToBody [intTypeRep, strTypeRep] `shouldBe` (manyTypes @'[String, Int])
   describe "Semigroup/Monoid laws" $ do
     prop "Associativity" $ do
       Q.forAllShrink gen3Bodies shrink3Bodies $
