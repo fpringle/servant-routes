@@ -318,20 +318,20 @@ instance (KnownSymbol path, HasRoutes api) => HasRoutes (path :> api) where
       path = knownSymbolT @path
 
 instance
-  (Typeable a, HasRoutes api) =>
+  (KnownSymbol capture, Typeable a, HasRoutes api) =>
   HasRoutes (Capture' mods capture a :> api)
   where
-  getRoutes = getRoutes @api <&> routePath %~ prependPathPart capture
+  getRoutes = getRoutes @api <&> routePath %~ prependCapturePart @a capture
     where
-      capture = "<" <> showTypeRep @a <> ">"
+      capture = knownSymbolT @capture
 
 instance
-  (Typeable [a], HasRoutes api) =>
+  (KnownSymbol capture, Typeable a, HasRoutes api) =>
   HasRoutes (CaptureAll capture a :> api)
   where
-  getRoutes = getRoutes @api <&> routePath %~ prependPathPart capture
+  getRoutes = getRoutes @api <&> routePath %~ prependCaptureAllPart @a capture
     where
-      capture = "<" <> showTypeRep @[a] <> ">"
+      capture = knownSymbolT @capture
 
 instance
   (KnownSymbol sym, Typeable (RequiredArgument mods a), HasRoutes api) =>
