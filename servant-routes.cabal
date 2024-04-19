@@ -41,6 +41,7 @@ common deps
     , containers >= 0.6 && < 0.8
     , microlens >= 0.4.9 && < 0.5
     , microlens-th >= 0.4.3 && < 0.5
+    , aeson-pretty >= 0.8.8 && < 0.9
 
 common extensions
   default-extensions:
