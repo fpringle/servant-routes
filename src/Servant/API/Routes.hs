@@ -43,6 +43,7 @@ module Servant.API.Routes
   , pattern Routes
   , Route
   , defRoute
+  , showRoute
 
     -- * Automatic generation of routes for Servant API types
 
@@ -53,6 +54,32 @@ module Servant.API.Routes
   , printRoutes
   , printRoutesJSON
   , printRoutesJSONPretty
+
+    -- * Types and helper functions
+
+    -- ** URL paths
+  , Path
+  , rootPath
+  , prependPathPart
+  , renderPath
+
+    -- ** Request/response bodies
+  , Body
+  , noBody
+  , oneType
+  , allOf
+  , oneOf
+
+    -- ** Request/response headers
+  , HeaderRep
+  , mkHeaderRep
+
+    -- ** Query parameters
+  , Param
+  , singleParam
+  , arrayElemParam
+  , flagParam
+  , renderParam
   )
 where
 
