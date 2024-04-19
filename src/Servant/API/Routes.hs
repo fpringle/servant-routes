@@ -52,6 +52,8 @@ module Servant.API.Routes
     -- defining their own combinators.
   , HasRoutes (..)
   , printRoutes
+  , printRoutesJSON
+  , printRoutesJSONPretty
 
     -- * Types and helper functions
 
@@ -82,6 +84,7 @@ module Servant.API.Routes
 where
 
 import Data.Aeson
+import Data.Aeson.Encode.Pretty
 import qualified Data.Aeson.Key as AK (fromText)
 import qualified Data.Aeson.Types as A (Pair)
 import Data.Bifunctor (bimap)
@@ -89,6 +92,8 @@ import Data.Foldable (foldl', traverse_)
 import qualified Data.Map as Map
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.IO as T
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TLE
 import Data.Typeable
 import GHC.TypeLits (KnownSymbol, Symbol)
 import Lens.Micro
@@ -257,6 +262,28 @@ printRoutes :: forall api. HasRoutes api => IO ()
 printRoutes = traverse_ printRoute $ getRoutes @api
   where
     printRoute = T.putStrLn . showRoute
+
+{- | Same as 'printRoutes`, but encode the t'Routes' as JSON before printing to stdout.
+For an even prettier version, see 'printRoutesJSONPretty'.
+-}
+printRoutesJSON :: forall api. HasRoutes api => IO ()
+printRoutesJSON =
+  T.putStrLn
+    . TL.toStrict
+    . TLE.decodeUtf8
+    . encode
+    . Routes
+    $ getRoutes @api
+
+-- | Pretty-encode the t'Routes' as JSON before printing to stdout.
+printRoutesJSONPretty :: forall api. HasRoutes api => IO ()
+printRoutesJSONPretty =
+  T.putStrLn
+    . TL.toStrict
+    . TLE.decodeUtf8
+    . encodePretty
+    . Routes
+    $ getRoutes @api
 
 instance HasRoutes EmptyAPI where
   getRoutes = mempty
