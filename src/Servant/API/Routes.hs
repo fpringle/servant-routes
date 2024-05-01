@@ -112,14 +112,14 @@ import "this" Servant.API.Routes.Utils
  path AND its method (since 2 routes can have the same path but different method).
  This newtype lets us represent this nested structure.
 -}
-newtype Routes = UnsafeRoutes
+newtype Routes = MkRoutes
   { unRoutes :: Map.Map Path (Map.Map Method Route)
   -- ^ Get the underlying 'Map.Map' of a t'Routes'.
   }
   deriving (Show, Eq)
 
 makeRoutes :: [Route] -> Routes
-makeRoutes = UnsafeRoutes . foldl' insert mempty
+makeRoutes = MkRoutes . foldl' insert mempty
   where
     insert acc r = Map.insertWith (<>) path subMap acc
       where
