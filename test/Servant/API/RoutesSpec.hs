@@ -11,12 +11,16 @@ import GHC.Generics
 import Lens.Micro
 import Servant.API
 import Servant.API.Routes
-import Servant.API.Routes.Body
-import Servant.API.Routes.Header
-import Servant.API.Routes.Param
-import Servant.API.Routes.Path
 import Servant.API.Routes.Route
+import Servant.API.Routes.RouteSpec ()
 import Test.Hspec as H
+import Test.Hspec.QuickCheck as H
+import Test.QuickCheck as Q
+
+instance Q.Arbitrary Routes where
+  -- we use the 'Routes' pattern to handle removing duplicates etc
+  arbitrary = Routes <$> Q.arbitrary
+  shrink (Routes routes) = Routes <$> Q.shrink routes
 
 type SubAPI = ReqBody '[JSON] String :> Post '[JSON] Int
 
@@ -65,7 +69,13 @@ spec :: Spec
 spec = do
   describe "Routes" $ do
     describe "makeRoutes/unmakeRoutes" $
-      it "works" pending
+      prop "correctly removes duplicates" $
+        \routes ->
+          let -- ~ routesList = unmakeRoutes routes
+              Routes routesList = routes
+              -- ~ routes2 = unmakeRoutes (routesList <> routesList)
+              routes2 = Routes (routesList <> routesList)
+          in  routes2 === routes
   describe "HasRoutes" $ do
     describe "base cases" $ do
       it "EmptyAPI" $ getRoutes @EmptyAPI `shouldMatchList` []
