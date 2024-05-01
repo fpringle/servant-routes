@@ -29,38 +29,27 @@ strTypeRep = typeRep $ Proxy @String
 unitTypeRepBody :: Body
 unitTypeRepBody = oneType @()
 
-genBody :: Q.Gen Body
-genBody =
-  Q.frequency
-    [ (1, pure noBody)
-    , (3, Q.elements [intTypeRepBody, strTypeRepBody])
-    ,
-      ( 3
-      , Q.elements
-          [ intTypeRepBody <> strTypeRepBody
-          , intTypeRepBody <> intTypeRepBody
-          ]
-      )
-    ,
-      ( 2
-      , Q.elements
-          [ intTypeRepBody <> strTypeRepBody <> unitTypeRepBody
-          , intTypeRepBody <> unitTypeRepBody <> intTypeRepBody
-          ]
-      )
-    ]
-
-shrinkBody :: Body -> [Body]
-shrinkBody = fmap listToBody . Q.shrinkList (const []) . bodyToList
-
-gen3Bodies :: Q.Gen (Body, Body, Body)
-gen3Bodies = (,,) <$> genBody <*> genBody <*> genBody
-
-shrink3Bodies :: (Body, Body, Body) -> [(Body, Body, Body)]
-shrink3Bodies (a, b, c) =
-  [(a', b, c) | a' <- shrinkBody a]
-    <> [(a, b', c) | b' <- shrinkBody b]
-    <> [(a, b, c') | c' <- shrinkBody c]
+instance Q.Arbitrary Body where
+  arbitrary =
+    Q.frequency
+      [ (1, pure noBody)
+      , (3, Q.elements [intTypeRepBody, strTypeRepBody])
+      ,
+        ( 3
+        , Q.elements
+            [ intTypeRepBody <> strTypeRepBody
+            , intTypeRepBody <> intTypeRepBody
+            ]
+        )
+      ,
+        ( 2
+        , Q.elements
+            [ intTypeRepBody <> strTypeRepBody <> unitTypeRepBody
+            , intTypeRepBody <> unitTypeRepBody <> intTypeRepBody
+            ]
+        )
+      ]
+  shrink = fmap listToBody . Q.shrinkList (const []) . bodyToList
 
 spec :: Spec
 spec = do
@@ -76,16 +65,12 @@ spec = do
       listToBody [intTypeRep, strTypeRep] `shouldBe` (manyTypes @'[String, Int])
   describe "Semigroup/Monoid laws" $ do
     prop "Associativity" $ do
-      Q.forAllShrink gen3Bodies shrink3Bodies $
-        \(x, y, z) -> x <> (y <> z) === (x <> y) <> z
-    prop "Right identity" $ do
-      Q.forAllShrink genBody shrinkBody $
-        \x -> x <> mempty === x
+      \(x :: Body, y, z) -> x <> (y <> z) === (x <> y) <> z
+    prop "Right identity" $
+      \(x :: Body) -> x <> mempty === x
     prop "Left identity" $ do
-      Q.forAllShrink genBody shrinkBody $
-        \x -> mempty <> x === x
+      \(x :: Body) -> mempty <> x === x
     prop "Concatentation" $ do
-      Q.forAllShrink (liftArbitrary genBody) (liftShrink shrinkBody) $
-        \xs -> mconcat xs === foldr (<>) mempty xs
+      \(xs :: [Body]) -> mconcat xs === foldr (<>) mempty xs
   it "AllTypeable" $ do
     typeReps @'[Int, String] `shouldMatchList` [intTypeRep, strTypeRep]
