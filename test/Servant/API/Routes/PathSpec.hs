@@ -1,7 +1,4 @@
-module Servant.API.Routes.PathSpec
-  ( spec
-  )
-where
+module Servant.API.Routes.PathSpec where
 
 import qualified Data.Text as T
 import Servant.API.Routes.Internal.Path

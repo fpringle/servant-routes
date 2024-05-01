@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 {- |
 Module      : Servant.API.Routes.Param
 Copyright   : (c) Frederick Pringle, 2024
@@ -17,33 +15,12 @@ module Servant.API.Routes.Param
   )
 where
 
-import Data.Aeson
-import Data.Function (on)
 import qualified Data.Text as T
 import Data.Typeable
-import GHC.Generics
 import GHC.TypeLits
+import "this" Servant.API.Routes.Internal.Param
 import "this" Servant.API.Routes.Utils
 import qualified Servant.Links as S
-
-{- | Newtype wrapper around servant's 'S.Param' so we can define a sensible
-'Eq' instance for it.
--}
-newtype Param = Param
-  { unParam :: S.Param
-  }
-  deriving (Show) via S.Param
-
-instance Eq Param where
-  (==) = eq `on` unParam
-    where
-      S.SingleParam name1 rep1 `eq` S.SingleParam name2 rep2 =
-        name1 == name2 && rep1 == rep2
-      S.ArrayElemParam name1 rep1 `eq` S.ArrayElemParam name2 rep2 =
-        name1 == name2 && rep1 == rep2
-      S.FlagParam name1 `eq` S.FlagParam name2 =
-        name1 == name2
-      _ `eq` _ = False
 
 -- | Create a 'S.SingleParam' from a 'Symbol' and a 'TypeRep' via 'Typeable'.
 singleParam :: forall s a. (KnownSymbol s, Typeable a) => Param
@@ -64,25 +41,6 @@ flagParam :: forall s. (KnownSymbol s) => Param
 flagParam = Param (S.FlagParam name)
   where
     name = symbolVal $ Proxy @s
-
-data ParamType
-  = SingleParam
-  | ArrayElemParam
-  | FlagParam
-  deriving (Show, Eq, Enum, Bounded, Generic)
-  deriving (ToJSON)
-
-instance ToJSON Param where
-  toJSON (Param p) =
-    object $ case p of
-      S.SingleParam name rep ->
-        withType SingleParam ["name" .= name, "param_type" .= rep]
-      S.ArrayElemParam name rep ->
-        withType ArrayElemParam ["name" .= name, "param_type" .= rep]
-      S.FlagParam name ->
-        withType FlagParam ["name" .= name]
-    where
-      withType t ps = ("type" .= t) : ps
 
 -- | Pretty-print a 'Param'. Used by 'Servant.API.Routes.showRoute'.
 renderParam :: Param -> T.Text

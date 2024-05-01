@@ -1,5 +1,6 @@
 module Servant.API.Routes.HeaderSpec
   ( spec
+  , sampleReps
   )
 where
 
@@ -19,7 +20,7 @@ spec = do
     it "should return an empty list for an empty type-level list" $
       getHeaderReps @'[] `shouldBe` []
     it "should recurse properly" $
-      getHeaderReps @'[H1, H2, H3] `shouldBe` HeaderRep "h1" intTypeRep : getHeaderReps @'[H2, H3]
+      sampleReps `shouldBe` HeaderRep "h1" intTypeRep : getHeaderReps @'[H2, H3]
 
 intTypeRep :: TypeRep
 intTypeRep = typeRep $ Proxy @Int
@@ -29,3 +30,6 @@ type H1 = Header "h1" Int
 type H2 = Header "h2" Char
 
 type H3 = Header "h3" [Integer]
+
+sampleReps :: [HeaderRep]
+sampleReps = getHeaderReps @'[H1, H2, H3]
