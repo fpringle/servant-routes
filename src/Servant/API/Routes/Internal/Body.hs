@@ -1,3 +1,4 @@
+{-# LANGUAGE PatternSynonyms #-}
 {-# OPTIONS_HADDOCK not-home #-}
 
 {- |
@@ -9,16 +10,21 @@ Maintainer  : freddyjepringle@gmail.com
 Internal module, subject to change.
 -}
 module Servant.API.Routes.Internal.Body
-  ( Body (..)
+  ( Body
+  , pattern NoBody
+  , pattern OneType
+  , pattern ManyTypes
   , bodyToList
   , listToBody
   , AllTypeable (..)
   )
 where
 
+import Data.Function (on)
 import Data.Kind (Type)
 import Data.List (nub, sort)
 import Data.Typeable
+import "this" Servant.API.Routes.Internal.Some as S
 import "this" Servant.API.Routes.Utils
 
 {- | A more expressive sum-type than just a list. This can be useful in situations
@@ -33,46 +39,52 @@ type's @HasServer@ instance would try to parse the request body as all of the re
 case the 'Servant.API.Routes._routeRequestBody' field needs to be able to contain several 'TypeRep's
 as a conjunction.
 -}
-data Body
-  = NoBody
-  | OneType TypeRep
-  | -- | invariant: list needs to have length > 1
-    ManyTypes [TypeRep] -- order not important
-  deriving (Show)
+newtype Body = Body {unBody :: Some TypeRep}
+  deriving (Show) via Some TypeRep
+
+-- | The request/response has no body.
+pattern NoBody :: Body
+pattern NoBody <- Body None
+  where
+    NoBody = Body None
+
+-- | The request/response has exactly body.
+pattern OneType :: TypeRep -> Body
+pattern OneType t <- Body (One t)
+  where
+    OneType = Body . One
+
+-- | The request/response has multiple bodies. How this is interpreted (AND/OR) is dependent on the use-case.
+pattern ManyTypes :: [TypeRep] -> Body
+pattern ManyTypes ts <- Body (Many (checkMoreThan1 -> Just ts))
+  where
+    ManyTypes = Body . Many
+
+checkMoreThan1 :: [a] -> Maybe [a]
+checkMoreThan1 ts@(_ : _ : _) = Just ts
+checkMoreThan1 _ = Nothing
+
+{-# COMPLETE NoBody, OneType, ManyTypes #-}
 
 -- | Convert a 'Body' to a list of 'TypeRep's. Inverse of 'listToBody'.
 bodyToList :: Body -> [TypeRep]
-bodyToList = \case
-  NoBody -> []
-  OneType tRep -> [tRep]
-  ManyTypes tReps -> tReps
+bodyToList = S.toList . unBody
 
 {- | Convert a list of 'TypeRep's to a 'Body'. Inverse of 'listToBody'.
 
 This maintains the invariant that the argument of 'ManyTypes' has to be of length > 1.
 -}
 listToBody :: [TypeRep] -> Body
-listToBody = \case
-  [] -> NoBody
-  [tRep] -> OneType tRep
-  tReps -> ManyTypes tReps
+listToBody = Body . S.fromList
 
 instance Eq Body where
-  NoBody == NoBody = True
-  OneType t1 == OneType t2 = t1 == t2
-  ManyTypes ts1 == ManyTypes ts2 = sort (nub ts1) == sort (nub ts2)
-  _ == _ = False
+  (==) = eqSome ((==) `on` (sort . nub)) `on` unBody
 
 instance Semigroup Body where
-  NoBody <> x = x
-  x <> NoBody = x
-  OneType t1 <> OneType t2 = ManyTypes [t1, t2]
-  OneType t <> ManyTypes ts = ManyTypes (t : ts)
-  ManyTypes ts <> OneType t = ManyTypes (t : ts) -- order not important, more efficient
-  ManyTypes ts1 <> ManyTypes ts2 = ManyTypes (ts1 <> ts2)
+  Body b1 <> Body b2 = Body (appendSome (:) (flip (:)) b1 b2)
 
 instance Monoid Body where
-  mempty = NoBody
+  mempty = Body S.None
 
 {- | This class does 2 things:
 

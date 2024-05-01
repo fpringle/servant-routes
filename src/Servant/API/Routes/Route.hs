@@ -48,7 +48,7 @@ defRoute method =
     }
 
 {- | Pretty-print a 'Route'. Note that the output is minimal and doesn't contain all the information
-contained in a 'Route'. For full output, use the 'ToJSON' instance.
+contained in a 'Route'. For full output, use the 'Data.Aeson.ToJSON' instance.
 
 > ghci> showRoute $ defRoute \"POST\"
 > "POST /"

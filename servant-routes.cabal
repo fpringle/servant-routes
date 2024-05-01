@@ -76,6 +76,7 @@ library
     Servant.API.Routes.Path
     Servant.API.Routes.Body
 
+    Servant.API.Routes.Internal.Some
     Servant.API.Routes.Internal.Header
     Servant.API.Routes.Internal.Param
     Servant.API.Routes.Internal.Path

@@ -40,7 +40,8 @@ import "this" Servant.API.Routes.Utils
 {- | A simple representation of a single endpoint of an API.
 
 The 'Route' type is not sophisticated, and its internals are hidden.
-Create 'Route's using 'defRoute', and update its fields using the provided [lenses](#g:optics).
+Create 'Route's using 'Servant.API.Routes.Route.defRoute', and update its fields
+using the provided [lenses](#g:optics).
 -}
 data Route = Route
   { _routeMethod :: Method
