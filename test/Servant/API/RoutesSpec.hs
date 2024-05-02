@@ -144,7 +144,7 @@ spec = do
     describe "recursive: some combinators combine or alter routes" $ do
       it ":<|>" $ getRoutes @(SubAPI :<|> SubAPI2) `shouldMatchList` getRoutes @SubAPI <> getRoutes @SubAPI2
       it "NoContentVerb" $
-        showRoute <$> getRoutes @(NoContentVerb 'POST) `shouldMatchList` ["POST /"]
+        renderRoute <$> getRoutes @(NoContentVerb 'POST) `shouldMatchList` ["POST /"]
       it "Symbol :>" $ do
         let prep = routePath %~ prependPathPart "sym"
         getRoutes @("sym" :> SubAPI) `shouldMatchList` prep <$> getRoutes @SubAPI

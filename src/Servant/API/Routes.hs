@@ -11,7 +11,8 @@ Maintainer  : freddyjepringle@gmail.com
 This package provides two things:
 
   1. A simple, and probably incomplete, way to represent APIs at the term level.
-     This is achieved by the 'Route', t'Routes', 'Path', 'Param', 'HeaderRep' types.
+     This is achieved by the 'Route', t'Routes', 'Path', 'Param', 'HeaderRep',
+     'Request', 'Response' and 'Responses' types.
   2. More interestingly, a way to automatically generate the routes from any Servant API.  This is
      accomplished using the 'HasRoutes' typeclass. You can think of this as being a less sophisticated
      version of @HasOpenApi@ from [servant-openapi3](https://hackage.haskell.org/package/servant-openapi3),
@@ -28,9 +29,9 @@ The 'HasRoutes' class could help as a golden test - run 'getRoutes' before and a
 the refactor, and if they give the same result you can be much more confident that the
 refactor didn't introduce difficult bugs.
 
-/Note that 'printRoutes' only includes the path, method and query parameters.
-For more detailed comparison, use the JSON instance of t'Routes', encode the routes to
-a file (before and after the refactoring), and use [jdiff](https://github.com/networktocode/jdiff)./
+- Note that 'printRoutes' only includes the path, method and query parameters.
+  For more detailed comparison, use the JSON instance of t'Routes', encode the routes to
+  a file (before and after the refactoring), and use [jdiff](https://github.com/networktocode/jdiff).
 
 Another use-case is in testing: some Haskellers use type families to modify Servant APIs, for example
 to add endpoints or authorisation headers. Types are hard to test, but terms are easy. Use 'HasRoutes'
@@ -38,12 +39,12 @@ and run your tests on t'Routes'.
 -}
 module Servant.API.Routes
   ( -- * API routes
-    Routes
+    Route
+  , defRoute
+  , renderRoute
+  , Routes
   , unRoutes
   , pattern Routes
-  , Route
-  , defRoute
-  , showRoute
 
     -- * Automatic generation of routes for Servant API types
 
@@ -267,11 +268,11 @@ class HasRoutes api where
   -- of @getRoutes \@API@.
   getRoutes :: [Route]
 
--- | Get all the routes of an API and print them to stdout. See 'showRoute' for examples.
+-- | Get all the routes of an API and print them to stdout. See 'renderRoute' for examples.
 printRoutes :: forall api. HasRoutes api => IO ()
 printRoutes = traverse_ printRoute $ getRoutes @api
   where
-    printRoute = T.putStrLn . showRoute
+    printRoute = T.putStrLn . renderRoute
 
 {- | Same as 'printRoutes`, but encode the t'Routes' as JSON before printing to stdout.
 For an even prettier version, see 'printRoutesJSONPretty'.

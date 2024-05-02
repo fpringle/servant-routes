@@ -37,10 +37,6 @@ import "this" Servant.API.Routes.Path
 
 {- | A simple representation of a single endpoint of an API.
 
-The 'Route' type is not sophisticated, and its internals are hidden.
-Create 'Route's using 'Servant.API.Routes.Route.defRoute', and update its fields
-using the provided [lenses](#g:optics).
-
 TODO: these lists should be sets.
 -}
 data Route = Route

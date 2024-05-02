@@ -8,9 +8,13 @@ Simple term-level representation of Servant API endpoints.
 -}
 module Servant.API.Routes.Route
   ( -- * API routes
+
+    -- | The 'Route' type is not sophisticated, and its internals are hidden.
+    -- Create 'Route's using 'Servant.API.Routes.Route.defRoute', and update its fields
+    -- using the provided [lenses](#g:optics).
     Route
   , defRoute
-  , showRoute
+  , renderRoute
 
     -- * Optics #optics#
   , routeMethod
@@ -50,18 +54,18 @@ defRoute method =
 {- | Pretty-print a 'Route'. Note that the output is minimal and doesn't contain all the information
 contained in a 'Route'. For full output, use the 'Data.Aeson.ToJSON' instance.
 
-> ghci> showRoute $ defRoute \"POST\"
+> ghci> renderRoute $ defRoute \"POST\"
 > "POST /"
 > ghci> :{
-> ghci| showRoute $
+> ghci| renderRoute $
 > ghci|   defRoute \"POST\"
 > ghci|     & routePath %~ prependPathPart "api/v2"
 > ghci|     & routeParams .~ [singleParam @"p1" @T.Text, flagParam @"flag", arrayElemParam @"p2s" @(Maybe Int)]
 > ghci| :}
 > "POST /api/v2?p1=<Text>&flag&p2s=<[Maybe Int]>"
 -}
-showRoute :: Route -> T.Text
-showRoute Route {..} =
+renderRoute :: Route -> T.Text
+renderRoute Route {..} =
   mconcat
     [ method
     , " "
