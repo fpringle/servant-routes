@@ -8,17 +8,20 @@ Term-level representation of the responses that Servant endpoints can return.
 -}
 module Servant.API.Routes.Response
   ( Responses
+  , unResponses
   , noResponse
   , oneResponse
   , oneOfResponses
   , Response
   , responseType
   , responseHeaders
+  , responses
   , HasResponse (..)
   , AllHasResponse (..)
   )
 where
 
+import Lens.Micro
 import "this" Servant.API.Routes.Internal.Response
 import "this" Servant.API.Routes.Internal.Some
 
@@ -41,3 +44,7 @@ oneOfResponses ::
   AllHasResponse as =>
   Responses
 oneOfResponses = Responses . Many $ getResponses @as
+
+-- | Convenience optic to traverse over all the 'Response's within a 'Responses'.
+responses :: Traversal' Responses Response
+responses = unResponses . traversed

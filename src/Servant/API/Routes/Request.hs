@@ -8,13 +8,16 @@ Term-level representation of the request bodies that Servant endpoints expect.
 -}
 module Servant.API.Routes.Request
   ( Request
+  , unRequest
   , noRequest
   , oneRequest
   , allOfRequests
+  , requests
   )
 where
 
 import Data.Typeable
+import Lens.Micro
 import "this" Servant.API.Routes.Internal.Request
 import "this" Servant.API.Routes.Internal.Some
 import "this" Servant.API.Routes.Utils
@@ -40,3 +43,7 @@ allOfRequests ::
   AllTypeable as =>
   Request
 allOfRequests = Request . Many $ typeReps @as
+
+-- | Convenience optic to traverse over all the 'TypeRep's within a 'Request'.
+requests :: Traversal' Request TypeRep
+requests = unRequest . traversed

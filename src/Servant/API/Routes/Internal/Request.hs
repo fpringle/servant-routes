@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_HADDOCK not-home #-}
 
 {- |
@@ -10,6 +11,7 @@ Internal module, subject to change.
 -}
 module Servant.API.Routes.Internal.Request
   ( Request (..)
+  , unRequest
   , AllTypeable (..)
   )
 where
@@ -19,6 +21,7 @@ import Data.Function (on)
 import Data.Kind (Type)
 import Data.List (nub, sort)
 import Data.Typeable
+import Lens.Micro.TH
 import "this" Servant.API.Routes.Internal.Some as S
 import "this" Servant.API.Routes.Utils
 
@@ -31,14 +34,16 @@ to parse as several different types (multiple 'Servant.API.ReqBody''s).
 Note that this type doesn't include any information about the headers that an
 endpoint expects, since those are independent of the request body.
 -}
-newtype Request = Request {unRequest :: Some TypeRep}
+newtype Request = Request {_unRequest :: Some TypeRep}
   deriving (Show) via Some TypeRep
 
+makeLenses ''Request
+
 instance ToJSON Request where
-  toJSON = someToJSONAs typeRepToJSON "all_of" . unRequest
+  toJSON = someToJSONAs typeRepToJSON "all_of" . _unRequest
 
 instance Eq Request where
-  (==) = eqSome ((==) `on` (sort . nub)) `on` unRequest
+  (==) = eqSome ((==) `on` (sort . nub)) `on` _unRequest
 
 instance Semigroup Request where
   Request b1 <> Request b2 = Request (appendSome (:) (flip (:)) b1 b2)

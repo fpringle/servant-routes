@@ -11,6 +11,7 @@ Internal module, subject to change.
 -}
 module Servant.API.Routes.Internal.Response
   ( Responses (..)
+  , unResponses
   , Response (..)
   , responseType
   , responseHeaders
@@ -103,11 +104,13 @@ responses, via 'UVerb'.
 
 Note that a 'Response' consists of a return body type, /as well as/ the return headers.
 -}
-newtype Responses = Responses {unResponses :: Some Response}
+newtype Responses = Responses {_unResponses :: Some Response}
   deriving (Show) via Some Response
 
+makeLenses ''Responses
+
 instance Eq Responses where
-  (==) = eqSome ((==) `on` (sort . nub)) `on` unResponses
+  (==) = eqSome ((==) `on` (sort . nub)) `on` _unResponses
 
 instance Semigroup Responses where
   Responses b1 <> Responses b2 = Responses (appendSome (:) (flip (:)) b1 b2)
@@ -116,4 +119,4 @@ instance Monoid Responses where
   mempty = Responses S.None
 
 instance ToJSON Responses where
-  toJSON = someToJSONAs toJSON "one_of" . unResponses
+  toJSON = someToJSONAs toJSON "one_of" . _unResponses
