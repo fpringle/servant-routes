@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveTraversable #-}
 {-# OPTIONS_HADDOCK not-home #-}
 
 {- |
@@ -45,6 +46,7 @@ where
 
 import Data.Aeson
 import qualified Data.Aeson.Key as AK (fromText)
+import qualified Data.Foldable as Fold
 import qualified Data.Text as T
 
 -- | Simple ADT which codifies whether a list contains 0, 1, or many elements.
@@ -56,7 +58,7 @@ data Some a
     -- Whether or not order is important is left up to the user. Therefore we define no instances of
     -- 'Eq', 'Ord', 'Semigroup' or any other class that would involve comparing or combining this list.
     Many [a]
-  deriving (Show)
+  deriving (Show, Functor, Foldable, Traversable)
 
 {- | Compare 2 'Some's for equality, given a way to compare lists in the 'Many' constructor.
 
@@ -93,10 +95,7 @@ appendSome cons' snoc' = app
 
 -- | Convert a 'Some' to a list. Inverse of 'fromList'.
 toList :: Some a -> [a]
-toList = \case
-  None -> []
-  One tRep -> [tRep]
-  Many tReps -> tReps
+toList = Fold.toList
 
 {- | Convert a list of @a@s to a 'Some'. Inverse of 'toList'.
 
