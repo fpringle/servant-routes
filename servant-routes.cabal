@@ -74,7 +74,6 @@ library
     Servant.API.Routes.Header
     Servant.API.Routes.Param
     Servant.API.Routes.Path
-    Servant.API.Routes.Body
     Servant.API.Routes.Request
     Servant.API.Routes.Response
 
@@ -82,7 +81,6 @@ library
     Servant.API.Routes.Internal.Header
     Servant.API.Routes.Internal.Param
     Servant.API.Routes.Internal.Path
-    Servant.API.Routes.Internal.Body
     Servant.API.Routes.Internal.Request
     Servant.API.Routes.Internal.Response
     Servant.API.Routes.Internal.Route
@@ -107,7 +105,6 @@ test-suite servant-routes-test
     Servant.API.Routes.HeaderSpec
     Servant.API.Routes.ParamSpec
     Servant.API.Routes.PathSpec
-    Servant.API.Routes.BodySpec
   build-tool-depends:
       hspec-discover:hspec-discover
   ghc-options:      -Wno-orphans
