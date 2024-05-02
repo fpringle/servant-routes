@@ -6,11 +6,13 @@ module Servant.API.RoutesSpec
 where
 
 import Data.Function
+import qualified Data.Set as Set
 import qualified Data.Text as T
 import GHC.Generics
 import Lens.Micro
 import Servant.API
 import Servant.API.Routes
+import Servant.API.Routes.Internal.Response
 import Servant.API.Routes.Route
 import Servant.API.Routes.RouteSpec ()
 import Test.Hspec as H
@@ -33,11 +35,14 @@ type SubAPI3 =
           :<|> "z" :> Header' '[Optional] "h2" Int :> Get '[JSON] [Integer]
        )
 
-intTypeRepBody :: Body
-intTypeRepBody = oneType @Int
+intRequest :: Request
+intRequest = oneRequest @Int
 
-strTypeRepBody :: Body
-strTypeRepBody = oneType @String
+intResponse :: Responses
+intResponse = oneResponse @Int
+
+strResponse :: Responses
+strResponse = oneResponse @String
 
 #if MIN_VERSION_servant(0,19,0)
 data API mode = API
@@ -85,25 +90,46 @@ spec = do
                             ]
         getRoutes @(UVerb 'POST '[JSON] '[Int])
           `shouldMatchList` [ defRoute "POST"
-                                & routeResponseType .~ intTypeRepBody
+                                & routeResponse .~ intResponse
                             ]
         getRoutes @(UVerb 'POST '[JSON] '[Int, String])
           `shouldMatchList` [ defRoute "POST"
-                                & routeResponseType .~ intTypeRepBody <> strTypeRepBody
+                                & routeResponse .~ intResponse <> strResponse
                             ]
-        getRoutes @(UVerb 'POST '[JSON] '[Int, String])
+        getRoutes @(UVerb 'POST '[JSON] '[Headers '[] Int, String])
           `shouldMatchList` [ defRoute "POST"
-                                & routeResponseType .~ strTypeRepBody <> intTypeRepBody
+                                & routeResponse .~ strResponse <> intResponse
+                            ]
+        getRoutes
+          @( UVerb
+              'POST
+              '[JSON]
+              '[ Headers '[] (Headers '[Header "h2" String] Int)
+               , Headers '[Header "h1" [Int], Header "h3" Int] String
+               ]
+           )
+          `shouldMatchList` [ defRoute "POST"
+                                & routeResponse
+                                  .~ ( strResponse
+                                        & unResponses . traversed . responseHeaders
+                                          <>~ Set.fromList
+                                            [ mkHeaderRep @"h1" @[Int]
+                                            , mkHeaderRep @"h3" @Int
+                                            ]
+                                     )
+                                    <> ( intResponse
+                                          & unResponses . traversed . responseHeaders
+                                            %~ Set.insert (mkHeaderRep @"h2" @String)
+                                       )
                             ]
       it "Verb" $ do
-        getRoutes @(Post '[JSON] Int) `shouldMatchList` [defRoute "POST" & routeResponseType .~ intTypeRepBody]
+        getRoutes @(Post '[JSON] Int) `shouldMatchList` [defRoute "POST" & routeResponse .~ intResponse]
         getRoutes @(Post '[JSON] (Headers '[Header "h1" String] Int))
           `shouldMatchList` [ defRoute "POST"
-                                & routeResponseType .~ intTypeRepBody
-                                & routeResponseHeaders .~ [mkHeaderRep @"h1" @String]
+                                & routeResponse .~ oneResponse @(Headers '[Header "h1" String] Int)
                             ]
       it "Stream" $ do
-        getRoutes @(Stream 'POST 201 NoFraming JSON Int) `shouldMatchList` [defRoute "POST" & routeResponseType .~ intTypeRepBody]
+        getRoutes @(Stream 'POST 201 NoFraming JSON Int) `shouldMatchList` [defRoute "POST" & routeResponse .~ intResponse]
 
     describe "boring: combinators that don't change routes" $ do
       it "Description" $ unchanged @(Description "desc")
@@ -163,12 +189,12 @@ spec = do
         getRoutes @(QueryParams "h1" Int :> SubAPI2) `shouldMatchList` addP <$> getRoutes @SubAPI2
         getRoutes @(QueryParams "h1" Int :> SubAPI3) `shouldMatchList` addP <$> getRoutes @SubAPI3
       it "ReqBody' :>" $ do
-        let addB = routeRequestBody <>~ intTypeRepBody
+        let addB = routeRequestBody <>~ intRequest
         getRoutes @(ReqBody '[JSON] Int :> SubAPI) `shouldMatchList` addB <$> getRoutes @SubAPI
         getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldMatchList` addB <$> getRoutes @SubAPI2
         getRoutes @(ReqBody '[JSON] Int :> SubAPI3) `shouldMatchList` addB <$> getRoutes @SubAPI3
       it "StreamBody' :>" $ do
-        let addB = routeRequestBody <>~ intTypeRepBody
+        let addB = routeRequestBody <>~ intRequest
         getRoutes @(ReqBody '[JSON] Int :> SubAPI) `shouldMatchList` addB <$> getRoutes @SubAPI
         getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldMatchList` addB <$> getRoutes @SubAPI2
         getRoutes @(StreamBody NoFraming JSON Int :> SubAPI3) `shouldMatchList` addB <$> getRoutes @SubAPI3

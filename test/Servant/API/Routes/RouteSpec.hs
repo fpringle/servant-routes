@@ -9,12 +9,13 @@ import Data.Function
 import qualified Data.Text as T
 import Lens.Micro
 import Network.HTTP.Types.Method
-import Servant.API.Routes.BodySpec ()
 import Servant.API.Routes.HeaderSpec hiding (spec)
 import Servant.API.Routes.Internal.Path
 import Servant.API.Routes.Internal.Route
 import Servant.API.Routes.ParamSpec hiding (spec)
 import Servant.API.Routes.PathSpec (genPathPart, shrinkPathPart)
+import Servant.API.Routes.RequestSpec ()
+import Servant.API.Routes.ResponseSpec ()
 import Servant.API.Routes.Route
 import Test.Hspec as H
 import Test.QuickCheck as Q
@@ -26,8 +27,7 @@ instance Q.Arbitrary Route where
     _routeParams <- Q.sublistOf [sing, arrayElem, flag]
     _routeRequestHeaders <- Q.sublistOf sampleReps
     _routeRequestBody <- arbitrary
-    _routeResponseHeaders <- Q.sublistOf sampleReps
-    _routeResponseType <- arbitrary
+    _routeResponse <- arbitrary
     _routeAuths <- Q.listOf genAuths
 
     pure Route {..}
@@ -44,8 +44,7 @@ instance Q.Arbitrary Route where
       <> routeParams shrinkSublist r
       <> routeRequestHeaders shrinkSublist r
       <> routeRequestBody Q.shrink r
-      <> routeResponseHeaders shrinkSublist r
-      <> routeResponseType Q.shrink r
+      <> routeResponse Q.shrink r
       <> routeAuths (Q.shrinkList shrinkAuth) r
     where
       shrinkMethod = either (const []) (fmap renderStdMethod . Q.shrinkBoundedEnum) . parseMethod
