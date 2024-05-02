@@ -64,11 +64,21 @@ module Servant.API.Routes
   , renderPath
 
     -- ** Request/response bodies
-  , Body
-  , noBody
-  , oneType
-  , allOf
-  , oneOf
+
+    -- *** Requests
+  , Request
+  , noRequest
+  , oneRequest
+  , allOfRequests
+
+    -- *** Responses
+  , Response
+  , responseType
+  , responseHeaders
+  , Responses
+  , noResponse
+  , oneResponse
+  , oneOfResponses
 
     -- ** Request/response headers
   , HeaderRep
@@ -100,11 +110,11 @@ import Lens.Micro
 import Network.HTTP.Types.Method (Method)
 import Servant.API
 import Servant.API.Modifiers (RequiredArgument)
-import "this" Servant.API.Routes.Body
 import "this" Servant.API.Routes.Header
-import "this" Servant.API.Routes.Internal.Body
 import "this" Servant.API.Routes.Param
 import "this" Servant.API.Routes.Path
+import "this" Servant.API.Routes.Request
+import "this" Servant.API.Routes.Response
 import "this" Servant.API.Routes.Route
 import "this" Servant.API.Routes.Utils
 
@@ -304,10 +314,10 @@ instance
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType .~ response
+        & routeResponse .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = oneType @a
+      response = oneResponse @a
 
 instance
   {-# OVERLAPPING #-}
@@ -320,12 +330,10 @@ instance
   getRoutes =
     pure $
       defRoute method
-        & routeResponseHeaders .~ headers
-        & routeResponseType .~ response
+        & routeResponse .~ response
     where
       method = reflectMethod $ Proxy @method
-      headers = getHeaderReps @hs
-      response = oneType @a
+      response = oneResponse @(Headers hs a)
 
 #if MIN_VERSION_servant(0,18,1)
 instance
@@ -345,22 +353,22 @@ instance
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType .~ response
+        & routeResponse .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = oneType @a
+      response = oneResponse @a
 
 instance
-  (ReflectMethod (method :: StdMethod), AllTypeable as, Unique as) =>
+  (ReflectMethod (method :: StdMethod), AllHasResponse as, Unique as) =>
   HasRoutes (UVerb method ctypes as)
   where
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType .~ response
+        & routeResponse .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = oneOf @as
+      response = oneOfResponses @as
 #endif
 
 instance (HasRoutes l, HasRoutes r) => HasRoutes (l :<|> r) where
@@ -416,7 +424,7 @@ instance (KnownSymbol sym, HasRoutes api) => HasRoutes (QueryFlag sym :> api) wh
 instance (HasRoutes api, Typeable a) => HasRoutes (ReqBody' mods list a :> api) where
   getRoutes = getRoutes @api <&> routeRequestBody <>~ reqBody
     where
-      reqBody = oneType @a
+      reqBody = oneRequest @a
 
 instance (HasRoutes api) => HasRoutes (Vault :> api) where
   getRoutes = getRoutes @api
@@ -463,7 +471,7 @@ instance (HasRoutes api) => HasRoutes (RemoteHost :> api) where
 instance (HasRoutes api, Typeable a) => HasRoutes (StreamBody' mods framing ct a :> api) where
   getRoutes = getRoutes @api <&> routeRequestBody .~ reqBody
     where
-      reqBody = oneType @a
+      reqBody = oneRequest @a
 
 instance (HasRoutes api) => HasRoutes (WithNamedContext name subContext api) where
   getRoutes = getRoutes @api
@@ -475,7 +483,7 @@ instance
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType .~ response
+        & routeResponse .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = oneType @a
+      response = oneResponse @a
