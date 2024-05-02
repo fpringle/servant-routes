@@ -44,7 +44,7 @@ data HeaderRep = HeaderRep
   { _hName :: Text
   , _hType :: TypeRep
   }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord)
 
 instance ToJSON HeaderRep where
   toJSON HeaderRep {..} =
