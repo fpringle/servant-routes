@@ -75,8 +75,10 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
         "path": "/users/list",
         "request_body": null,
         "request_headers": [],
-        "response": "[User]",
-        "response_headers": []
+        "response": {
+            "headers": [],
+            "type": "[User]"
+        }
     },
     {
         "auths": [],
@@ -85,8 +87,10 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
         "path": "/users/create",
         "request_body": "UserCreateData",
         "request_headers": [],
-        "response": "UserID",
-        "response_headers": []
+        "response": {
+            "headers": [],
+            "type": "UserID"
+        }
     },
     {
         "auths": [],
@@ -106,8 +110,10 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
                 "type": "ApiKey"
             }
         ],
-        "response": "User",
-        "response_headers": []
+        "response": {
+            "headers": [],
+            "type": "User"
+        }
     },
     {
         "auths": [],
@@ -116,13 +122,15 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
         "path": "/transactions/<TransactionID>",
         "request_body": null,
         "request_headers": [],
-        "response": "Transaction",
-        "response_headers": [
-            {
-                "name": "x-request-id",
-                "type": "RequestID"
-            }
-        ]
+        "response": {
+            "headers": [
+                {
+                    "name": "x-request-id",
+                    "type": "RequestID"
+                }
+            ],
+            "type": "Transaction"
+        }
     },
     {
         "auths": [
@@ -133,8 +141,10 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
         "path": "/admin/users/delete/<[UserID]>",
         "request_body": null,
         "request_headers": [],
-        "response": "UserID",
-        "response_headers": []
+        "response": {
+            "headers": [],
+            "type": "UserID"
+        }
     }
 ]
 ```
@@ -206,8 +216,10 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
         "path": "/users/list",
         "request_body": null,
         "request_headers": [],
-        "response": "[User]",
-        "response_headers": []
+        "response": {
+            "headers": [],
+            "type": "[User]"
+        }
     },
     {
         "auths": [],
@@ -216,8 +228,10 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
         "path": "/users/create",
         "request_body": "UserCreateData",
         "request_headers": [],
-        "response": "UserID",
-        "response_headers": []
+        "response": {
+            "headers": [],
+            "type": "UserID"
+        }
     },
     {
         "auths": [],
@@ -237,8 +251,10 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
                 "type": "ApiKey"
             }
         ],
-        "response": "User",
-        "response_headers": []
+        "response": {
+            "headers": [],
+            "type": "User"
+        }
     },
     {
         "auths": [],
@@ -247,13 +263,15 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
         "path": "/transactions/<TransactionID>",
         "request_body": null,
         "request_headers": [],
-        "response": "Transaction",
-        "response_headers": [
-            {
-                "name": "x-request-id",
-                "type": "RequestID"
-            }
-        ]
+        "response": {
+            "headers": [
+                {
+                    "name": "x-request-id",
+                    "type": "RequestID"
+                }
+            ],
+            "type": "Transaction"
+        }
     },
     {
         "auths": [
@@ -264,10 +282,13 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
         "path": "/admin/users/delete/<[UserID]>",
         "request_body": null,
         "request_headers": [],
-        "response": "UserID",
-        "response_headers": []
+        "response": {
+            "headers": [],
+            "type": "UserID"
+        }
     }
 ]
+
 ```
 
 </details>
@@ -285,7 +306,7 @@ The `HasServer` instance tells us that the effect of `Replay :> api` is to inher
 As far as our `HasRoutes` instance is concerned, this means that we need to:
 
 1. Call `getRoutes` on `api` to get the list of un-modified routes
-2. Add a `HeaderRep` to the `routeResponseHeaders` field of each route, with name `X-Replay-Path` and type-rep `ByteString`.
+2. Add a `HeaderRep` to the `responseHeaders` field of all the possible responses of each route, with name `X-Replay-Path` and type-rep `ByteString`.
 
 ```haskell
 data Replay
@@ -294,20 +315,20 @@ instance HasRoutes api => HasRoutes (Replay :> api) where
   getRoutes =
     let apiRoutes = getRoutes @api
         replayHeader = mkHeaderRep @"X-Replay-Path" @ByteString
-        addHeader route = route & routeHeaderReps %~ (replayHeader :)
+        addHeader route = route & routeResponse . unResponses . traversed . responseHeaders %~ Set.insert replayHeader
     in  addHeader <$> apiRoutes
 ```
 
 We can test the implementation on `ServantAPI` from above:
 
 ```haskell
-ghci> BL.putStrLn . encodePretty $ getRoutes @(Replay :> ServantAPIWithNamedRoutes)
+ghci> BL.putStrLn . encodePretty $ getRoutes @(Replay :> ServantAPI)
 ```
 
 <details>
 <summary>Click to see JSON output</summary>
 
-Note that each route is the same as above, but with an extra `response_header` `{"name": "X-Replay-Path", "type": "ByteString"}`:
+Note that each route is the same as above, but with an extra `response.header` `{"name": "X-Replay-Path", "type": "ByteString"}`:
   
 ```json
 [
@@ -318,13 +339,15 @@ Note that each route is the same as above, but with an extra `response_header` `
         "path": "/users/list",
         "request_body": null,
         "request_headers": [],
-        "response": "[User]",
-        "response_headers": [
-            {
-                "name": "X-Replay-Path",
-                "type": "ByteString"
-            }
-        ]
+        "response": {
+            "headers": [
+                {
+                    "name": "X-Replay-Path",
+                    "type": "ByteString"
+                }
+            ],
+            "type": "[User]"
+        }
     },
     {
         "auths": [],
@@ -333,13 +356,15 @@ Note that each route is the same as above, but with an extra `response_header` `
         "path": "/users/create",
         "request_body": "UserCreateData",
         "request_headers": [],
-        "response": "UserID",
-        "response_headers": [
-            {
-                "name": "X-Replay-Path",
-                "type": "ByteString"
-            }
-        ]
+        "response": {
+            "headers": [
+                {
+                    "name": "X-Replay-Path",
+                    "type": "ByteString"
+                }
+            ],
+            "type": "UserID"
+        }
     },
     {
         "auths": [],
@@ -359,13 +384,15 @@ Note that each route is the same as above, but with an extra `response_header` `
                 "type": "ApiKey"
             }
         ],
-        "response": "User",
-        "response_headers": [
-            {
-                "name": "X-Replay-Path",
-                "type": "ByteString"
-            }
-        ]
+        "response": {
+            "headers": [
+                {
+                    "name": "X-Replay-Path",
+                    "type": "ByteString"
+                }
+            ],
+            "type": "User"
+        }
     },
     {
         "auths": [],
@@ -374,17 +401,19 @@ Note that each route is the same as above, but with an extra `response_header` `
         "path": "/transactions/<TransactionID>",
         "request_body": null,
         "request_headers": [],
-        "response": "Transaction",
-        "response_headers": [
-            {
-                "name": "X-Replay-Path",
-                "type": "ByteString"
-            },
-            {
-                "name": "x-request-id",
-                "type": "RequestID"
-            }
-        ]
+        "response": {
+            "headers": [
+                {
+                    "name": "X-Replay-Path",
+                    "type": "ByteString"
+                },
+                {
+                    "name": "x-request-id",
+                    "type": "RequestID"
+                }
+            ],
+            "type": "Transaction"
+        }
     },
     {
         "auths": [
@@ -395,13 +424,15 @@ Note that each route is the same as above, but with an extra `response_header` `
         "path": "/admin/users/delete/<[UserID]>",
         "request_body": null,
         "request_headers": [],
-        "response": "UserID",
-        "response_headers": [
-            {
-                "name": "X-Replay-Path",
-                "type": "ByteString"
-            }
-        ]
+        "response": {
+            "headers": [
+                {
+                    "name": "X-Replay-Path",
+                    "type": "ByteString"
+                }
+            ],
+            "type": "UserID"
+        }
     }
 ]
 ```
