@@ -6,6 +6,7 @@ module Servant.API.Routes.RouteSpec
 where
 
 import Data.Function
+import qualified Data.Set as Set
 import qualified Data.Text as T
 import Lens.Micro
 import Network.HTTP.Types.Method
@@ -24,11 +25,11 @@ instance Q.Arbitrary Route where
   arbitrary = do
     _routeMethod <- renderStdMethod <$> Q.arbitraryBoundedEnum
     _routePath <- arbitrary
-    _routeParams <- Q.sublistOf [sing, arrayElem, flag]
-    _routeRequestHeaders <- Q.sublistOf sampleReps
+    _routeParams <- Set.fromList <$> Q.sublistOf [sing, arrayElem, flag]
+    _routeRequestHeaders <- Set.fromList <$> Q.sublistOf sampleReps
     _routeRequestBody <- arbitrary
     _routeResponse <- arbitrary
-    _routeAuths <- Q.listOf genAuths
+    _routeAuths <- Set.fromList <$> Q.listOf genAuths
 
     pure Route {..}
     where
@@ -41,14 +42,16 @@ instance Q.Arbitrary Route where
   shrink r =
     routeMethod shrinkMethod r
       <> routePath Q.shrink r
-      <> routeParams shrinkSublist r
-      <> routeRequestHeaders shrinkSublist r
+      <> routeParams shrinkSubset r
+      <> routeRequestHeaders shrinkSubset r
       <> routeRequestBody Q.shrink r
       <> routeResponse Q.shrink r
-      <> routeAuths (Q.shrinkList shrinkAuth) r
+      <> routeAuths (shrinkSet shrinkAuth) r
     where
       shrinkMethod = either (const []) (fmap renderStdMethod . Q.shrinkBoundedEnum) . parseMethod
-      shrinkSublist = Q.shrinkList (const [])
+      shrinkSet shr = fmap Set.fromList . Q.shrinkList shr . Set.toList
+      shrinkSubset :: Ord a => Set.Set a -> [Set.Set a]
+      shrinkSubset = shrinkSet (const [])
       shrinkAuth auth = case T.stripPrefix "Basic " auth of
         Nothing -> shrinkPathPart auth
         Just realm -> ("Basic " <>) <$> shrinkPathPart realm
@@ -69,6 +72,6 @@ spec = do
         let route =
               defRoute "PUT"
                 & routePath .~ Path ["api", "v2"]
-                & routeParams .~ [sing, arrayElem, flag]
+                & routeParams .~ Set.fromList [sing, arrayElem, flag]
             expected = "PUT /api/v2?" <> T.intercalate "&" [singExpected, arrayElemExpected, flagExpected]
         in  renderRoute route `shouldBe` expected
