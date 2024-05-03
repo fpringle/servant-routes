@@ -27,6 +27,7 @@ module Servant.API.Routes.Route
   )
 where
 
+import qualified Data.Set as Set
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Network.HTTP.Types.Method (Method)
@@ -44,7 +45,7 @@ defRoute method =
   Route
     { _routeMethod = method
     , _routePath = rootPath
-    , _routeParams = mempty
+    , _routeParams = Set.empty
     , _routeRequestHeaders = mempty
     , _routeRequestBody = noRequest
     , _routeResponse = noResponse
@@ -78,4 +79,4 @@ renderRoute Route {..} =
     params =
       if null _routeParams
         then ""
-        else "?" <> T.intercalate "&" (renderParam <$> _routeParams)
+        else "?" <> T.intercalate "&" (renderParam <$> Set.toList _routeParams)

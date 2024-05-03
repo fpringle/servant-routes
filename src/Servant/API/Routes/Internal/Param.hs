@@ -37,6 +37,20 @@ instance Eq Param where
         name1 == name2
       _ `eq` _ = False
 
+instance Ord Param where
+  compare = comp `on` unParam
+    where
+      S.SingleParam name1 rep1 `comp` S.SingleParam name2 rep2 =
+        name1 `compare` name2 <> rep1 `compare` rep2
+      S.ArrayElemParam name1 rep1 `comp` S.ArrayElemParam name2 rep2 =
+        name1 `compare` name2 <> rep1 `compare` rep2
+      S.FlagParam name1 `comp` S.FlagParam name2 =
+        name1 `compare` name2
+      S.SingleParam {} `comp` _ = LT
+      _ `comp` S.SingleParam {} = LT
+      S.ArrayElemParam {} `comp` _ = LT
+      _ `comp` S.ArrayElemParam {} = LT
+
 data ParamType
   = SingleParam
   | ArrayElemParam
