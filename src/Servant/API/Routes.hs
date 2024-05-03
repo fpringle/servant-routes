@@ -93,6 +93,11 @@ module Servant.API.Routes
   , arrayElemParam
   , flagParam
   , renderParam
+
+    -- ** Auth schemes
+  , Auth
+  , basicAuth
+  , customAuth
   )
 where
 
@@ -114,6 +119,7 @@ import Lens.Micro
 import Network.HTTP.Types.Method (Method)
 import Servant.API
 import Servant.API.Modifiers (RequiredArgument)
+import "this" Servant.API.Routes.Auth
 import "this" Servant.API.Routes.Header
 import "this" Servant.API.Routes.Param
 import "this" Servant.API.Routes.Path
@@ -439,7 +445,7 @@ instance (HasRoutes api) => HasRoutes (HttpVersion :> api) where
 instance (HasRoutes api, KnownSymbol realm) => HasRoutes (BasicAuth realm usr :> api) where
   getRoutes = getRoutes @api <&> routeAuths %~ Set.insert auth
     where
-      auth = "Basic " <> knownSymbolT @realm
+      auth = basicAuth @realm
 
 instance (HasRoutes api) => HasRoutes (Description sym :> api) where
   getRoutes = getRoutes @api
@@ -453,7 +459,7 @@ instance
   where
   getRoutes = getRoutes @api <&> routeAuths %~ Set.insert auth
     where
-      auth = knownSymbolT @tag
+      auth = customAuth @tag
 
 instance
   (HasRoutes api, KnownSymbol sym, Typeable (RequiredArgument mods a)) =>
