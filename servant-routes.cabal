@@ -76,6 +76,7 @@ library
     Servant.API.Routes.Path
     Servant.API.Routes.Request
     Servant.API.Routes.Response
+    Servant.API.Routes.Auth
 
     Servant.API.Routes.Internal.Some
     Servant.API.Routes.Internal.Header
@@ -84,6 +85,7 @@ library
     Servant.API.Routes.Internal.Request
     Servant.API.Routes.Internal.Response
     Servant.API.Routes.Internal.Route
+    Servant.API.Routes.Internal.Auth
   other-modules:
     Servant.API.Routes.Utils
   -- other-extensions:
