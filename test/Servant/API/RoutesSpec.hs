@@ -173,10 +173,15 @@ spec = do
         getRoutes @(ReqBody '[JSON] Int :> SubAPI2) `shouldMatchList` addB <$> getRoutes @SubAPI2
         getRoutes @(StreamBody NoFraming JSON Int :> SubAPI3) `shouldMatchList` addB <$> getRoutes @SubAPI3
       it "Capture' :>" $ do
-        let addC = routePath %~ prependPathPart "<Int>"
+        let addC = routePath %~ prependCapturePart @Int "cap"
         getRoutes @(Capture "cap" Int :> SubAPI) `shouldMatchList` addC <$> getRoutes @SubAPI
         getRoutes @(Capture "cap" Int :> SubAPI2) `shouldMatchList` addC <$> getRoutes @SubAPI2
         getRoutes @(Capture "cap" Int :> SubAPI3) `shouldMatchList` addC <$> getRoutes @SubAPI3
+      it "CaptureAll :>" $ do
+        let addC = routePath %~ prependCaptureAllPart @Int "cap"
+        getRoutes @(CaptureAll "cap" Int :> SubAPI) `shouldMatchList` addC <$> getRoutes @SubAPI
+        getRoutes @(CaptureAll "cap" Int :> SubAPI2) `shouldMatchList` addC <$> getRoutes @SubAPI2
+        getRoutes @(CaptureAll "cap" Int :> SubAPI3) `shouldMatchList` addC <$> getRoutes @SubAPI3
 #if MIN_VERSION_servant(0,19,0)
       it "NamedRoutes" $
         getRoutes @(NamedRoutes API) `shouldMatchList` getRoutes @SubAPI <> getRoutes @SubAPI2 <> getRoutes @SubAPI3

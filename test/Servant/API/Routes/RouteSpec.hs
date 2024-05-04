@@ -14,7 +14,7 @@ import Servant.API.Routes.HeaderSpec hiding (spec)
 import Servant.API.Routes.Internal.Path
 import Servant.API.Routes.Internal.Route
 import Servant.API.Routes.ParamSpec hiding (spec)
-import Servant.API.Routes.PathSpec (genPathPart, shrinkPathPart)
+import Servant.API.Routes.PathSpec (genAlphaText, shrinkText)
 import Servant.API.Routes.Route
 import Test.Hspec as H
 import Test.QuickCheck as Q
@@ -34,8 +34,8 @@ instance Q.Arbitrary Route where
     where
       genAuths =
         Q.oneof
-          [ ("Basic " <>) <$> genPathPart
-          , genPathPart
+          [ ("Basic " <>) <$> genAlphaText
+          , genAlphaText
           ]
 
   shrink r =
@@ -51,8 +51,8 @@ instance Q.Arbitrary Route where
       shrinkMethod = either (const []) (fmap renderStdMethod . Q.shrinkBoundedEnum) . parseMethod
       shrinkSublist = Q.shrinkList (const [])
       shrinkAuth auth = case T.stripPrefix "Basic " auth of
-        Nothing -> shrinkPathPart auth
-        Just realm -> ("Basic " <>) <$> shrinkPathPart realm
+        Nothing -> shrinkText auth
+        Just realm -> ("Basic " <>) <$> shrinkText realm
 
 spec :: Spec
 spec = do
