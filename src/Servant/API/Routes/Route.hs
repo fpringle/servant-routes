@@ -24,12 +24,14 @@ module Servant.API.Routes.Route
   , routeRequestBody
   , routeResponse
   , routeAuths
+  , add
   )
 where
 
 import qualified Data.Set as Set
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
+import Lens.Micro
 import Network.HTTP.Types.Method (Method)
 import "this" Servant.API.Routes.Internal.Route
 import "this" Servant.API.Routes.Param
@@ -80,3 +82,6 @@ renderRoute Route {..} =
       if null _routeParams
         then ""
         else "?" <> T.intercalate "&" (renderParam <$> Set.toList _routeParams)
+
+add :: Ord a => ASetter s t (Set.Set a) (Set.Set a) -> a -> s -> t
+add setter = over setter . Set.insert

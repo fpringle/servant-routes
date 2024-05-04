@@ -118,8 +118,8 @@ spec = do
                                             ]
                                      )
                                     <> ( intResponse
-                                          & unResponses . traversed . responseHeaders
-                                            %~ Set.insert (mkHeaderRep @"h2" @String)
+                                          & (unResponses . traversed . responseHeaders)
+                                            `add` (mkHeaderRep @"h2" @String)
                                        )
                             ]
       it "Verb" $ do
@@ -151,40 +151,40 @@ spec = do
         getRoutes @("sym" :> SubAPI2) `shouldMatchList` prep <$> getRoutes @SubAPI2
         getRoutes @("sym" :> SubAPI3) `shouldMatchList` prep <$> getRoutes @SubAPI3
       it "Header' :>" $ do
-        let addH = routeRequestHeaders %~ Set.insert (mkHeaderRep @"h1" @Int)
+        let addH = routeRequestHeaders `add` (mkHeaderRep @"h1" @Int)
         getRoutes @(Header' '[Required] "h1" Int :> SubAPI) `shouldMatchList` addH <$> getRoutes @SubAPI
         getRoutes @(Header' '[Required] "h1" Int :> SubAPI2) `shouldMatchList` addH <$> getRoutes @SubAPI2
         getRoutes @(Header' '[Required] "h1" Int :> SubAPI3) `shouldMatchList` addH <$> getRoutes @SubAPI3
-        let addHOptional = routeRequestHeaders %~ Set.insert (mkHeaderRep @"h1" @(Maybe Int))
+        let addHOptional = routeRequestHeaders `add` (mkHeaderRep @"h1" @(Maybe Int))
         getRoutes @(Header' '[Optional] "h1" Int :> SubAPI) `shouldMatchList` addHOptional <$> getRoutes @SubAPI
         getRoutes @(Header' '[Optional] "h1" Int :> SubAPI2) `shouldMatchList` addHOptional <$> getRoutes @SubAPI2
         getRoutes @(Header' '[Optional] "h1" Int :> SubAPI3) `shouldMatchList` addHOptional <$> getRoutes @SubAPI3
       it "BasicAuth :>" $ do
-        let addAuth = routeAuths %~ Set.insert (basicAuth @"realm")
+        let addAuth = routeAuths `add` basicAuth @"realm"
         getRoutes @(BasicAuth "realm" String :> SubAPI) `shouldMatchList` addAuth <$> getRoutes @SubAPI
         getRoutes @(BasicAuth "realm" String :> SubAPI2) `shouldMatchList` addAuth <$> getRoutes @SubAPI2
         getRoutes @(BasicAuth "realm" String :> SubAPI3) `shouldMatchList` addAuth <$> getRoutes @SubAPI3
       it "AuthProtect :>" $ do
-        let addAuth = routeAuths %~ Set.insert (customAuth @"my-special-auth")
+        let addAuth = routeAuths `add` customAuth @"my-special-auth"
         getRoutes @(AuthProtect "my-special-auth" :> SubAPI) `shouldMatchList` addAuth <$> getRoutes @SubAPI
         getRoutes @(AuthProtect "my-special-auth" :> SubAPI2) `shouldMatchList` addAuth <$> getRoutes @SubAPI2
         getRoutes @(AuthProtect "my-special-auth" :> SubAPI3) `shouldMatchList` addAuth <$> getRoutes @SubAPI3
       it "QueryFlag :>" $ do
-        let addFlag = routeParams %~ Set.insert (flagParam @"sym")
+        let addFlag = routeParams `add` (flagParam @"sym")
         getRoutes @(QueryFlag "sym" :> SubAPI) `shouldMatchList` addFlag <$> getRoutes @SubAPI
         getRoutes @(QueryFlag "sym" :> SubAPI2) `shouldMatchList` addFlag <$> getRoutes @SubAPI2
         getRoutes @(QueryFlag "sym" :> SubAPI3) `shouldMatchList` addFlag <$> getRoutes @SubAPI3
       it "QueryParam' :>" $ do
-        let addP = routeParams %~ Set.insert (singleParam @"h1" @Int)
+        let addP = routeParams `add` (singleParam @"h1" @Int)
         getRoutes @(QueryParam' '[Required] "h1" Int :> SubAPI) `shouldMatchList` addP <$> getRoutes @SubAPI
         getRoutes @(QueryParam' '[Required] "h1" Int :> SubAPI2) `shouldMatchList` addP <$> getRoutes @SubAPI2
         getRoutes @(QueryParam' '[Required] "h1" Int :> SubAPI3) `shouldMatchList` addP <$> getRoutes @SubAPI3
-        let addPOptional = routeParams %~ Set.insert (singleParam @"h1" @(Maybe Int))
+        let addPOptional = routeParams `add` (singleParam @"h1" @(Maybe Int))
         getRoutes @(QueryParam' '[Optional] "h1" Int :> SubAPI) `shouldMatchList` addPOptional <$> getRoutes @SubAPI
         getRoutes @(QueryParam' '[Optional] "h1" Int :> SubAPI2) `shouldMatchList` addPOptional <$> getRoutes @SubAPI2
         getRoutes @(QueryParam' '[Optional] "h1" Int :> SubAPI3) `shouldMatchList` addPOptional <$> getRoutes @SubAPI3
       it "QueryParams :>" $ do
-        let addP = routeParams %~ Set.insert (arrayElemParam @"h1" @Int)
+        let addP = routeParams `add` (arrayElemParam @"h1" @Int)
         getRoutes @(QueryParams "h1" Int :> SubAPI) `shouldMatchList` addP <$> getRoutes @SubAPI
         getRoutes @(QueryParams "h1" Int :> SubAPI2) `shouldMatchList` addP <$> getRoutes @SubAPI2
         getRoutes @(QueryParams "h1" Int :> SubAPI3) `shouldMatchList` addP <$> getRoutes @SubAPI3
