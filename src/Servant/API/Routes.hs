@@ -11,7 +11,8 @@ Maintainer  : freddyjepringle@gmail.com
 This package provides two things:
 
   1. A simple, and probably incomplete, way to represent APIs at the term level.
-     This is achieved by the 'Route', t'Routes', 'Path', 'Param', 'HeaderRep' types.
+     This is achieved by the 'Route', t'Routes', 'Path', 'Param', 'HeaderRep',
+     'Request', 'Response' and 'Responses' types.
   2. More interestingly, a way to automatically generate the routes from any Servant API.  This is
      accomplished using the 'HasRoutes' typeclass. You can think of this as being a less sophisticated
      version of @HasOpenApi@ from [servant-openapi3](https://hackage.haskell.org/package/servant-openapi3),
@@ -28,9 +29,9 @@ The 'HasRoutes' class could help as a golden test - run 'getRoutes' before and a
 the refactor, and if they give the same result you can be much more confident that the
 refactor didn't introduce difficult bugs.
 
-/Note that 'printRoutes' only includes the path, method and query parameters.
-For more detailed comparison, use the JSON instance of t'Routes', encode the routes to
-a file (before and after the refactoring), and use [jdiff](https://github.com/networktocode/jdiff)./
+- Note that 'printRoutes' only includes the path, method and query parameters.
+  For more detailed comparison, use the JSON instance of t'Routes', encode the routes to
+  a file (before and after the refactoring), and use [jdiff](https://github.com/networktocode/jdiff).
 
 Another use-case is in testing: some Haskellers use type families to modify Servant APIs, for example
 to add endpoints or authorisation headers. Types are hard to test, but terms are easy. Use 'HasRoutes'
@@ -38,12 +39,12 @@ and run your tests on t'Routes'.
 -}
 module Servant.API.Routes
   ( -- * API routes
-    Routes
+    Route
+  , defRoute
+  , renderRoute
+  , Routes
   , unRoutes
   , pattern Routes
-  , Route
-  , defRoute
-  , showRoute
 
     -- * Automatic generation of routes for Servant API types
 
@@ -66,11 +67,21 @@ module Servant.API.Routes
   , renderPath
 
     -- ** Request/response bodies
-  , Body
-  , noBody
-  , oneType
-  , allOf
-  , oneOf
+
+    -- *** Requests
+  , Request
+  , noRequest
+  , oneRequest
+  , allOfRequests
+
+    -- *** Responses
+  , Response
+  , responseType
+  , responseHeaders
+  , Responses
+  , noResponse
+  , oneResponse
+  , oneOfResponses
 
     -- ** Request/response headers
   , HeaderRep
@@ -102,11 +113,11 @@ import Lens.Micro
 import Network.HTTP.Types.Method (Method)
 import Servant.API
 import Servant.API.Modifiers (RequiredArgument)
-import "this" Servant.API.Routes.Body
 import "this" Servant.API.Routes.Header
-import "this" Servant.API.Routes.Internal.Body
 import "this" Servant.API.Routes.Param
 import "this" Servant.API.Routes.Path
+import "this" Servant.API.Routes.Request
+import "this" Servant.API.Routes.Response
 import "this" Servant.API.Routes.Route
 import "this" Servant.API.Routes.Utils
 
@@ -259,11 +270,11 @@ class HasRoutes api where
   -- of @getRoutes \@API@.
   getRoutes :: [Route]
 
--- | Get all the routes of an API and print them to stdout. See 'showRoute' for examples.
+-- | Get all the routes of an API and print them to stdout. See 'renderRoute' for examples.
 printRoutes :: forall api. HasRoutes api => IO ()
 printRoutes = traverse_ printRoute $ getRoutes @api
   where
-    printRoute = T.putStrLn . showRoute
+    printRoute = T.putStrLn . renderRoute
 
 {- | Same as 'printRoutes`, but encode the t'Routes' as JSON before printing to stdout.
 For an even prettier version, see 'printRoutesJSONPretty'.
@@ -306,10 +317,10 @@ instance
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType .~ response
+        & routeResponse .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = oneType @a
+      response = oneResponse @a
 
 instance
   {-# OVERLAPPING #-}
@@ -322,12 +333,10 @@ instance
   getRoutes =
     pure $
       defRoute method
-        & routeResponseHeaders .~ headers
-        & routeResponseType .~ response
+        & routeResponse .~ response
     where
       method = reflectMethod $ Proxy @method
-      headers = getHeaderReps @hs
-      response = oneType @a
+      response = oneResponse @(Headers hs a)
 
 #if MIN_VERSION_servant(0,18,1)
 instance
@@ -347,22 +356,22 @@ instance
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType .~ response
+        & routeResponse .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = oneType @a
+      response = oneResponse @a
 
 instance
-  (ReflectMethod (method :: StdMethod), AllTypeable as, Unique as) =>
+  (ReflectMethod (method :: StdMethod), AllHasResponse as, Unique as) =>
   HasRoutes (UVerb method ctypes as)
   where
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType .~ response
+        & routeResponse .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = oneOf @as
+      response = oneOfResponses @as
 #endif
 
 instance (HasRoutes l, HasRoutes r) => HasRoutes (l :<|> r) where
@@ -418,7 +427,7 @@ instance (KnownSymbol sym, HasRoutes api) => HasRoutes (QueryFlag sym :> api) wh
 instance (HasRoutes api, Typeable a) => HasRoutes (ReqBody' mods list a :> api) where
   getRoutes = getRoutes @api <&> routeRequestBody <>~ reqBody
     where
-      reqBody = oneType @a
+      reqBody = oneRequest @a
 
 instance (HasRoutes api) => HasRoutes (Vault :> api) where
   getRoutes = getRoutes @api
@@ -465,7 +474,7 @@ instance (HasRoutes api) => HasRoutes (RemoteHost :> api) where
 instance (HasRoutes api, Typeable a) => HasRoutes (StreamBody' mods framing ct a :> api) where
   getRoutes = getRoutes @api <&> routeRequestBody .~ reqBody
     where
-      reqBody = oneType @a
+      reqBody = oneRequest @a
 
 instance (HasRoutes api) => HasRoutes (WithNamedContext name subContext api) where
   getRoutes = getRoutes @api
@@ -477,7 +486,7 @@ instance
   getRoutes =
     pure $
       defRoute method
-        & routeResponseType .~ response
+        & routeResponse .~ response
     where
       method = reflectMethod $ Proxy @method
-      response = oneType @a
+      response = oneResponse @a

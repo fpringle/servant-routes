@@ -8,9 +8,13 @@ Simple term-level representation of Servant API endpoints.
 -}
 module Servant.API.Routes.Route
   ( -- * API routes
+
+    -- | The 'Route' type is not sophisticated, and its internals are hidden.
+    -- Create 'Route's using 'Servant.API.Routes.Route.defRoute', and update its fields
+    -- using the provided [lenses](#g:optics).
     Route
   , defRoute
-  , showRoute
+  , renderRoute
 
     -- * Optics #optics#
   , routeMethod
@@ -18,8 +22,7 @@ module Servant.API.Routes.Route
   , routeParams
   , routeRequestHeaders
   , routeRequestBody
-  , routeResponseHeaders
-  , routeResponseType
+  , routeResponse
   , routeAuths
   )
 where
@@ -30,6 +33,8 @@ import Network.HTTP.Types.Method (Method)
 import "this" Servant.API.Routes.Internal.Route
 import "this" Servant.API.Routes.Param
 import "this" Servant.API.Routes.Path
+import "this" Servant.API.Routes.Request
+import "this" Servant.API.Routes.Response
 
 {- | Given a REST 'Method', create a default 'Route': root path (@"/"@) with no params,
 headers, body, auths, or response.
@@ -41,27 +46,26 @@ defRoute method =
     , _routePath = rootPath
     , _routeParams = mempty
     , _routeRequestHeaders = mempty
-    , _routeRequestBody = mempty
-    , _routeResponseHeaders = mempty
-    , _routeResponseType = mempty
+    , _routeRequestBody = noRequest
+    , _routeResponse = noResponse
     , _routeAuths = mempty
     }
 
 {- | Pretty-print a 'Route'. Note that the output is minimal and doesn't contain all the information
-contained in a 'Route'. For full output, use the 'ToJSON' instance.
+contained in a 'Route'. For full output, use the 'Data.Aeson.ToJSON' instance.
 
-> ghci> showRoute $ defRoute \"POST\"
+> ghci> renderRoute $ defRoute \"POST\"
 > "POST /"
 > ghci> :{
-> ghci| showRoute $
+> ghci| renderRoute $
 > ghci|   defRoute \"POST\"
 > ghci|     & routePath %~ prependPathPart "api/v2"
 > ghci|     & routeParams .~ [singleParam @"p1" @T.Text, flagParam @"flag", arrayElemParam @"p2s" @(Maybe Int)]
 > ghci| :}
 > "POST /api/v2?p1=<Text>&flag&p2s=<[Maybe Int]>"
 -}
-showRoute :: Route -> T.Text
-showRoute Route {..} =
+renderRoute :: Route -> T.Text
+renderRoute Route {..} =
   mconcat
     [ method
     , " "

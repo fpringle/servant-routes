@@ -42,7 +42,7 @@ flagParam = Param (S.FlagParam name)
   where
     name = symbolVal $ Proxy @s
 
--- | Pretty-print a 'Param'. Used by 'Servant.API.Routes.showRoute'.
+-- | Pretty-print a 'Param'. Used by 'Servant.API.Routes.renderRoute'.
 renderParam :: Param -> T.Text
 renderParam (Param param) = case param of
   S.SingleParam var typ -> T.pack var <> "=<" <> typ <> ">"
