@@ -108,7 +108,6 @@ import qualified Data.Aeson.Types as A (Pair)
 import Data.Bifunctor (bimap)
 import Data.Foldable (foldl', traverse_)
 import qualified Data.Map as Map
-import qualified Data.Set as Set
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as TL
@@ -409,7 +408,7 @@ instance
   (KnownSymbol sym, Typeable (RequiredArgument mods a), HasRoutes api) =>
   HasRoutes (QueryParam' mods sym a :> api)
   where
-  getRoutes = getRoutes @api <&> routeParams %~ Set.insert param
+  getRoutes = getRoutes @api <&> routeParams `add` param
     where
       param = singleParam @sym @(RequiredArgument mods a)
 
@@ -417,7 +416,7 @@ instance
   (KnownSymbol sym, Typeable a, HasRoutes api) =>
   HasRoutes (QueryParams sym a :> api)
   where
-  getRoutes = getRoutes @api <&> routeParams %~ Set.insert param
+  getRoutes = getRoutes @api <&> routeParams `add` param
     where
       param = arrayElemParam @sym @a
 
@@ -427,7 +426,7 @@ instance (HasRoutes (ToServantApi routes)) => HasRoutes (NamedRoutes routes) whe
 #endif
 
 instance (KnownSymbol sym, HasRoutes api) => HasRoutes (QueryFlag sym :> api) where
-  getRoutes = getRoutes @api <&> routeParams %~ Set.insert param
+  getRoutes = getRoutes @api <&> routeParams `add` param
     where
       param = flagParam @sym
 
@@ -443,7 +442,7 @@ instance (HasRoutes api) => HasRoutes (HttpVersion :> api) where
   getRoutes = getRoutes @api
 
 instance (HasRoutes api, KnownSymbol realm) => HasRoutes (BasicAuth realm usr :> api) where
-  getRoutes = getRoutes @api <&> routeAuths %~ Set.insert auth
+  getRoutes = getRoutes @api <&> routeAuths `add` auth
     where
       auth = basicAuth @realm
 
@@ -457,7 +456,7 @@ instance
   (HasRoutes api, KnownSymbol tag) =>
   HasRoutes (AuthProtect (tag :: Symbol) :> api)
   where
-  getRoutes = getRoutes @api <&> routeAuths %~ Set.insert auth
+  getRoutes = getRoutes @api <&> routeAuths `add` auth
     where
       auth = customAuth @tag
 
@@ -465,7 +464,7 @@ instance
   (HasRoutes api, KnownSymbol sym, Typeable (RequiredArgument mods a)) =>
   HasRoutes (Header' mods sym a :> api)
   where
-  getRoutes = getRoutes @api <&> routeRequestHeaders %~ Set.insert header
+  getRoutes = getRoutes @api <&> routeRequestHeaders `add` header
     where
       header = mkHeaderRep @sym @(RequiredArgument mods a)
 
