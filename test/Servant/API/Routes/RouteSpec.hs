@@ -8,10 +8,51 @@ where
 import Data.Function
 import qualified Data.Text as T
 import Lens.Micro
+import Network.HTTP.Types.Method
+import Servant.API.Routes.BodySpec ()
+import Servant.API.Routes.HeaderSpec hiding (spec)
 import Servant.API.Routes.Internal.Path
-import "this" Servant.API.Routes.ParamSpec hiding (spec)
+import Servant.API.Routes.Internal.Route
+import Servant.API.Routes.ParamSpec hiding (spec)
+import Servant.API.Routes.PathSpec (genAlphaText, shrinkText)
 import Servant.API.Routes.Route
 import Test.Hspec as H
+import Test.QuickCheck as Q
+
+instance Q.Arbitrary Route where
+  arbitrary = do
+    _routeMethod <- renderStdMethod <$> Q.arbitraryBoundedEnum
+    _routePath <- arbitrary
+    _routeParams <- Q.sublistOf [sing, arrayElem, flag]
+    _routeRequestHeaders <- Q.sublistOf sampleReps
+    _routeRequestBody <- arbitrary
+    _routeResponseHeaders <- Q.sublistOf sampleReps
+    _routeResponseType <- arbitrary
+    _routeAuths <- Q.listOf genAuths
+
+    pure Route {..}
+    where
+      genAuths =
+        Q.oneof
+          [ ("Basic " <>) <$> genAlphaText
+          , genAlphaText
+          ]
+
+  shrink r =
+    routeMethod shrinkMethod r
+      <> routePath Q.shrink r
+      <> routeParams shrinkSublist r
+      <> routeRequestHeaders shrinkSublist r
+      <> routeRequestBody Q.shrink r
+      <> routeResponseHeaders shrinkSublist r
+      <> routeResponseType Q.shrink r
+      <> routeAuths (Q.shrinkList shrinkAuth) r
+    where
+      shrinkMethod = either (const []) (fmap renderStdMethod . Q.shrinkBoundedEnum) . parseMethod
+      shrinkSublist = Q.shrinkList (const [])
+      shrinkAuth auth = case T.stripPrefix "Basic " auth of
+        Nothing -> shrinkText auth
+        Just realm -> ("Basic " <>) <$> shrinkText realm
 
 spec :: Spec
 spec = do

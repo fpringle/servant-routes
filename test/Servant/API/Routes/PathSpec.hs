@@ -1,7 +1,4 @@
-module Servant.API.Routes.PathSpec
-  ( spec
-  )
-where
+module Servant.API.Routes.PathSpec where
 
 import qualified Data.Text as T
 import Data.Typeable
@@ -11,8 +8,8 @@ import Test.Hspec as H
 import Test.Hspec.QuickCheck as H
 import Test.QuickCheck as Q
 
-genStringPart :: Q.Gen T.Text
-genStringPart =
+genAlphaText :: Q.Gen T.Text
+genAlphaText =
   T.pack <$> do
     first' <- alnum
     rest <- Q.listOf alnumOrOther
@@ -22,6 +19,12 @@ genStringPart =
     alnumChars = ['a' .. 'z'] <> ['A' .. 'Z'] <> ['0' .. '9']
     alnum = Q.elements alnumChars
     alnumOrOther = Q.elements $ alnumChars <> "-_"
+
+shrinkText :: T.Text -> [T.Text]
+shrinkText = fmap T.pack . filter (not . null) . Q.shrinkList (const []) . T.unpack
+
+genStringPart :: Q.Gen T.Text
+genStringPart = genAlphaText
 
 genTypeRep :: Q.Gen TypeRep
 genTypeRep =
@@ -44,7 +47,7 @@ genStringParts :: Q.Gen T.Text
 genStringParts = unSplit <$> Q.listOf genStringPart
 
 shrinkStringPart :: T.Text -> [T.Text]
-shrinkStringPart = fmap T.pack . filter (not . null) . Q.shrinkList (const []) . T.unpack
+shrinkStringPart = shrinkText
 
 shrinkStringParts :: T.Text -> [T.Text]
 shrinkStringParts = fmap unSplit . Q.shrinkList shrinkStringPart . T.splitOn "/"
