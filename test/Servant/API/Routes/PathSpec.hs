@@ -1,14 +1,15 @@
 module Servant.API.Routes.PathSpec where
 
 import qualified Data.Text as T
+import Data.Typeable
 import Servant.API.Routes.Internal.Path
 import Servant.API.Routes.Path
 import Test.Hspec as H
 import Test.Hspec.QuickCheck as H
 import Test.QuickCheck as Q
 
-genPathPart :: Q.Gen T.Text
-genPathPart =
+genAlphaText :: Q.Gen T.Text
+genAlphaText =
   T.pack <$> do
     first' <- alnum
     rest <- Q.listOf alnumOrOther
@@ -19,17 +20,46 @@ genPathPart =
     alnum = Q.elements alnumChars
     alnumOrOther = Q.elements $ alnumChars <> "-_"
 
-genPathParts :: Q.Gen T.Text
-genPathParts = unSplit <$> Q.listOf genPathPart
+shrinkText :: T.Text -> [T.Text]
+shrinkText = fmap T.pack . filter (not . null) . Q.shrinkList (const []) . T.unpack
 
-shrinkPathPart :: T.Text -> [T.Text]
-shrinkPathPart = fmap T.pack . filter (not . null) . Q.shrinkList (const []) . T.unpack
+genStringPart :: Q.Gen T.Text
+genStringPart = genAlphaText
 
-shrinkPathParts :: T.Text -> [T.Text]
-shrinkPathParts = fmap unSplit . Q.shrinkList shrinkPathPart . T.splitOn "/"
+genTypeRep :: Q.Gen TypeRep
+genTypeRep =
+  Q.elements
+    [ typeRep (Proxy @Int)
+    , typeRep (Proxy @String)
+    , typeRep (Proxy @())
+    , typeRep (Proxy @[Int])
+    ]
+
+genPathPart :: Q.Gen PathPart
+genPathPart =
+  Q.frequency
+    [ (6, StringPart <$> genStringPart)
+    , (3, CapturePart <$> genStringPart <*> genTypeRep)
+    , (1, CaptureAllPart <$> genStringPart <*> genTypeRep)
+    ]
+
+genStringParts :: Q.Gen T.Text
+genStringParts = unSplit <$> Q.listOf genStringPart
+
+shrinkStringPart :: T.Text -> [T.Text]
+shrinkStringPart = shrinkText
+
+shrinkStringParts :: T.Text -> [T.Text]
+shrinkStringParts = fmap unSplit . Q.shrinkList shrinkStringPart . T.splitOn "/"
 
 unSplit :: [T.Text] -> T.Text
 unSplit = mappend pathSeparator . T.intercalate pathSeparator
+
+shrinkPathPart :: PathPart -> [PathPart]
+shrinkPathPart = \case
+  StringPart str -> StringPart <$> shrinkStringPart str
+  CapturePart name tRep -> [CapturePart name' tRep | name' <- shrinkStringPart name]
+  CaptureAllPart name tRep -> [CaptureAllPart name' tRep | name' <- shrinkStringPart name]
 
 normalise :: T.Text -> T.Text
 normalise =
@@ -56,9 +86,9 @@ spec = do
   describe "prependPathPart" $ do
     H.prop "should correctly prepend a single path part" $
       \(path :: Path) ->
-        Q.forAllShrink genPathPart shrinkPathPart $ \part ->
+        Q.forAllShrink genStringPart shrinkStringPart $ \part ->
           testPrep part path
     H.prop "should correctly prepend a multi-part path" $
       \(path :: Path) ->
-        Q.forAllShrink genPathParts shrinkPathParts $ \part ->
+        Q.forAllShrink genStringParts shrinkStringParts $ \part ->
           testPrep part path
