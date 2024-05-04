@@ -26,10 +26,10 @@ where
 import Data.Aeson
 import Data.Function (on)
 import qualified Data.Set as Set
-import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Lens.Micro.TH
 import Network.HTTP.Types.Method (Method)
+import "this" Servant.API.Routes.Auth
 import "this" Servant.API.Routes.Header
 import "this" Servant.API.Routes.Internal.Request
 import "this" Servant.API.Routes.Internal.Response
@@ -44,8 +44,7 @@ data Route = Route
   , _routeRequestHeaders :: Set.Set HeaderRep
   , _routeRequestBody :: Request
   , _routeResponse :: Responses
-  , -- TODO: Auth type
-    _routeAuths :: Set.Set T.Text
+  , _routeAuths :: Set.Set Auth
   }
   deriving (Show, Eq)
 

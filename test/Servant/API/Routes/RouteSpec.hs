@@ -11,6 +11,7 @@ import qualified Data.Text as T
 import Lens.Micro
 import Network.HTTP.Types.Method
 import Servant.API.Routes.HeaderSpec hiding (spec)
+import Servant.API.Routes.Internal.Auth
 import Servant.API.Routes.Internal.Path
 import Servant.API.Routes.Internal.Route
 import Servant.API.Routes.ParamSpec hiding (spec)
@@ -35,8 +36,8 @@ instance Q.Arbitrary Route where
     where
       genAuths =
         Q.oneof
-          [ ("Basic " <>) <$> genAlphaText
-          , genAlphaText
+          [ Basic <$> genAlphaText
+          , Custom <$> genAlphaText
           ]
 
   shrink r =
@@ -52,9 +53,9 @@ instance Q.Arbitrary Route where
       shrinkSet shr = fmap Set.fromList . Q.shrinkList shr . Set.toList
       shrinkSubset :: Ord a => Set.Set a -> [Set.Set a]
       shrinkSubset = shrinkSet (const [])
-      shrinkAuth auth = case T.stripPrefix "Basic " auth of
-        Nothing -> shrinkText auth
-        Just realm -> ("Basic " <>) <$> shrinkText realm
+      shrinkAuth = \case
+        Basic realm -> Basic <$> shrinkText realm
+        Custom tag -> Custom <$> shrinkText tag
 
 spec :: Spec
 spec = do

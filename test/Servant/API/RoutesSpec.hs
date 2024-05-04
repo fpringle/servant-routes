@@ -160,12 +160,12 @@ spec = do
         getRoutes @(Header' '[Optional] "h1" Int :> SubAPI2) `shouldMatchList` addHOptional <$> getRoutes @SubAPI2
         getRoutes @(Header' '[Optional] "h1" Int :> SubAPI3) `shouldMatchList` addHOptional <$> getRoutes @SubAPI3
       it "BasicAuth :>" $ do
-        let addAuth = routeAuths %~ Set.insert "Basic realm"
+        let addAuth = routeAuths %~ Set.insert (basicAuth @"realm")
         getRoutes @(BasicAuth "realm" String :> SubAPI) `shouldMatchList` addAuth <$> getRoutes @SubAPI
         getRoutes @(BasicAuth "realm" String :> SubAPI2) `shouldMatchList` addAuth <$> getRoutes @SubAPI2
         getRoutes @(BasicAuth "realm" String :> SubAPI3) `shouldMatchList` addAuth <$> getRoutes @SubAPI3
       it "AuthProtect :>" $ do
-        let addAuth = routeAuths %~ Set.insert "my-special-auth"
+        let addAuth = routeAuths %~ Set.insert (customAuth @"my-special-auth")
         getRoutes @(AuthProtect "my-special-auth" :> SubAPI) `shouldMatchList` addAuth <$> getRoutes @SubAPI
         getRoutes @(AuthProtect "my-special-auth" :> SubAPI2) `shouldMatchList` addAuth <$> getRoutes @SubAPI2
         getRoutes @(AuthProtect "my-special-auth" :> SubAPI3) `shouldMatchList` addAuth <$> getRoutes @SubAPI3
