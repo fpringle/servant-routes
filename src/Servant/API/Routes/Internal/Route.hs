@@ -25,6 +25,7 @@ where
 
 import Data.Aeson
 import Data.Function (on)
+import qualified Data.Set as Set
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Lens.Micro.TH
@@ -35,18 +36,16 @@ import "this" Servant.API.Routes.Internal.Response
 import "this" Servant.API.Routes.Param
 import "this" Servant.API.Routes.Path
 
-{- | A simple representation of a single endpoint of an API.
-
-TODO: these lists should be sets.
--}
+-- | A simple representation of a single endpoint of an API.
 data Route = Route
   { _routeMethod :: Method
   , _routePath :: Path
-  , _routeParams :: [Param]
-  , _routeRequestHeaders :: [HeaderRep]
+  , _routeParams :: Set.Set Param
+  , _routeRequestHeaders :: Set.Set HeaderRep
   , _routeRequestBody :: Request
   , _routeResponse :: Responses
-  , _routeAuths :: [T.Text]
+  , -- TODO: Auth type
+    _routeAuths :: Set.Set T.Text
   }
   deriving (Show, Eq)
 
