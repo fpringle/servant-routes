@@ -116,5 +116,5 @@ test-suite servant-routes-test
   ghc-options:      -Wno-orphans
   build-depends:
     , servant-routes
-    , hspec >= 2.9 && < 2.11
+    , hspec >= 2.9 && < 2.12
     , QuickCheck >= 2.14 && < 2.15
