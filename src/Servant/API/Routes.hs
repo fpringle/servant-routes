@@ -209,7 +209,7 @@ and we refactored to
 Oops! We forgot the @"api" :> "v2" :>@ in the 2nd sub-endpoint. However, since the @ServerT@ type
 is unaffected by adding or remove path parts, this will still compile.
 
-However, if we user 'HasRoutes' as a sanity check:
+However, if we use 'HasRoutes' as a sanity check:
 
 > ghci> printRoutes @API
 > GET /api/v2/users
