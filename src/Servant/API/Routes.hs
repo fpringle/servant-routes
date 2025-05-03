@@ -102,6 +102,7 @@ module Servant.API.Routes
   )
 where
 
+import Control.Applicative ((<|>))
 import Data.Aeson
 import Data.Aeson.Encode.Pretty
 import qualified Data.Aeson.Key as AK (fromText)
@@ -456,8 +457,8 @@ instance (HasRoutes api, KnownSymbol realm) => HasRoutes (BasicAuth realm usr :>
     where
       auth = basicAuth @realm
 
-instance (HasRoutes api) => HasRoutes (Description sym :> api) where
-  getRoutes = getRoutes @api
+instance (HasRoutes api, KnownSymbol sym) => HasRoutes (Description sym :> api) where
+  getRoutes = getRoutes @api <&> routeDescription %~ (<|> Just (RouteDescription (knownSymbolT @sym)))
 
 instance (HasRoutes api) => HasRoutes (Summary sym :> api) where
   getRoutes = getRoutes @api

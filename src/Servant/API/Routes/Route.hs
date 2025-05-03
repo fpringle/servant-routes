@@ -28,7 +28,7 @@ module Servant.API.Routes.Route
   , add
 
     -- * Auxiliary types
-  , Description (..)
+  , RouteDescription (..)
   )
 where
 
