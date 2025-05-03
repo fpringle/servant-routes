@@ -4,10 +4,10 @@ module Servant.API.Routes.HeaderSpec
   )
 where
 
-import Data.Typeable
 import Servant.API (Header)
 import Servant.API.Routes.Header
 import Servant.API.Routes.Internal.Header
+import Servant.API.Routes.Util
 import Test.Hspec as H
 
 spec :: Spec
@@ -21,9 +21,6 @@ spec = do
       getHeaderReps @'[] `shouldBe` []
     it "should recurse properly" $
       sampleReps `shouldBe` HeaderRep "h1" intTypeRep : getHeaderReps @'[H2, H3]
-
-intTypeRep :: TypeRep
-intTypeRep = typeRep $ Proxy @Int
 
 type H1 = Header "h1" Int
 
