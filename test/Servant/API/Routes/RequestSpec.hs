@@ -3,9 +3,9 @@ module Servant.API.Routes.RequestSpec
   )
 where
 
-import Data.Typeable
 import Servant.API.Routes.Internal.Request
 import "this" Servant.API.Routes.SomeSpec hiding (spec)
+import Servant.API.Routes.Util
 import Test.Hspec as H
 import Test.Hspec.QuickCheck as H
 import Test.QuickCheck as Q
@@ -13,15 +13,6 @@ import Test.QuickCheck as Q
 {- hlint ignore "Monoid law, right identity" -}
 {- hlint ignore "Monoid law, left identity" -}
 {- hlint ignore "Use fold" -}
-
-intTypeRep :: TypeRep
-intTypeRep = typeRep $ Proxy @Int
-
-strTypeRep :: TypeRep
-strTypeRep = typeRep $ Proxy @String
-
-unitTypeRep :: TypeRep
-unitTypeRep = typeRep $ Proxy @()
 
 instance Q.Arbitrary Request where
   arbitrary = Request <$> genSome (Q.elements [intTypeRep, strTypeRep, unitTypeRep])

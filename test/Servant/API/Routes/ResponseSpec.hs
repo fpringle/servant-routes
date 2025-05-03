@@ -4,10 +4,10 @@ module Servant.API.Routes.ResponseSpec
 where
 
 import qualified Data.Set as Set
-import Data.Typeable
 import "this" Servant.API.Routes.HeaderSpec (sampleReps)
 import Servant.API.Routes.Internal.Response
 import "this" Servant.API.Routes.SomeSpec hiding (spec)
+import Servant.API.Routes.Util
 import Test.Hspec as H
 import Test.Hspec.QuickCheck as H
 import Test.QuickCheck as Q
@@ -15,15 +15,6 @@ import Test.QuickCheck as Q
 {- hlint ignore "Monoid law, right identity" -}
 {- hlint ignore "Monoid law, left identity" -}
 {- hlint ignore "Use fold" -}
-
-intTypeRep :: TypeRep
-intTypeRep = typeRep $ Proxy @Int
-
-strTypeRep :: TypeRep
-strTypeRep = typeRep $ Proxy @String
-
-unitTypeRep :: TypeRep
-unitTypeRep = typeRep $ Proxy @()
 
 instance Q.Arbitrary Responses where
   arbitrary = Responses <$> genSome arbitrary

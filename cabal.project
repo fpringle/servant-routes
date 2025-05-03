@@ -1,0 +1,4 @@
+tests: True
+
+packages:
+  servant-routes.cabal

@@ -5,14 +5,14 @@ import Servant.API.Routes.Param
 import Test.Hspec as H
 
 sing, arrayElem, flag :: Param
-sing = singleParam @"sym" @Int
-arrayElem = arrayElemParam @"sym" @Int
-flag = flagParam @"sym"
+sing = singleParam @"sing_sym" @Int
+arrayElem = arrayElemParam @"array_sym" @Int
+flag = flagParam @"flag_sym"
 
 singExpected, arrayElemExpected, flagExpected :: T.Text
-singExpected = "sym=<Int>"
-arrayElemExpected = "sym=<[Int]>"
-flagExpected = "sym"
+singExpected = "sing_sym=<Int>"
+arrayElemExpected = "array_sym=<[Int]>"
+flagExpected = "flag_sym"
 
 spec :: Spec
 spec = do

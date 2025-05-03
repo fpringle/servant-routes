@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-
 module Servant.API.Routes.RouteSpec
   ( spec
   )
