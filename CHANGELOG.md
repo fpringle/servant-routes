@@ -13,7 +13,7 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 - 100% documentation coverage.
 - Almost 100% test coverage.
 - Reasonably detailed README.
-- CI using [haskell-ci](https://github.com/haskell-CI/haskell-ci).
+- CI that builds and tests the package for each version of GHC in the `tested-with` field.
 
 [unreleased]: https://github.com/fpringle/servant-routes/compare/8be3d0b...HEAD
 [0.1.0.0]: https://github.com/fpringle/servant-routes/releases/tag/v0.1.0.0
