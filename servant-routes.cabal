@@ -8,7 +8,7 @@ license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Frederick Pringle
 maintainer:         freddyjepringle@gmail.com
-copyright:          Copyright(c) Frederick Pringle 2024
+copyright:          Copyright(c) Frederick Pringle 2025
 homepage:           https://github.com/fpringle/servant-routes
 bug-reports:        https://github.com/fpringle/servant-routes/issues
 category:           Servant, Web
