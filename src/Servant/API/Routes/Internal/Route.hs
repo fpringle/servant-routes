@@ -11,6 +11,7 @@ Internal module, subject to change.
 module Servant.API.Routes.Internal.Route
   ( -- * API routes
     Route (..)
+  , RouteDescription (..)
 
     -- * Optics #optics#
   , routeMethod
@@ -20,12 +21,15 @@ module Servant.API.Routes.Internal.Route
   , routeRequestBody
   , routeResponse
   , routeAuths
+  , routeDescription
   )
 where
 
 import Data.Aeson
 import Data.Function (on)
 import qualified Data.Set as Set
+import Data.String (IsString)
+import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Lens.Micro.TH
 import Network.HTTP.Types.Method (Method)
@@ -36,6 +40,11 @@ import "this" Servant.API.Routes.Internal.Response
 import "this" Servant.API.Routes.Param
 import "this" Servant.API.Routes.Path
 
+-- | Description of a route. This will correspond to the Servant @Description@ combinator.
+newtype RouteDescription = RouteDescription {unDescription :: T.Text}
+  deriving (Show)
+  deriving (Eq, IsString, Ord, Semigroup, Monoid) via T.Text
+
 -- | A simple representation of a single endpoint of an API.
 data Route = Route
   { _routeMethod :: Method
@@ -45,6 +54,7 @@ data Route = Route
   , _routeRequestBody :: Request
   , _routeResponse :: Responses
   , _routeAuths :: Set.Set Auth
+  , _routeDescription :: Maybe RouteDescription
   }
   deriving (Show, Eq)
 
