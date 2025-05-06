@@ -34,6 +34,14 @@ type DescriptionEP2 =
 
 type DescriptionAPI = DescriptionEP1 :<|> DescriptionEP2
 
+type SummaryEP1 =
+  "ep1" :> Summary "This has a description" :> Get '[JSON] Int
+
+type SummaryEP2 =
+  "ep2" :> Get '[JSON] String
+
+type SummaryAPI = SummaryEP1 :<|> SummaryEP2
+
 type SubAPI2 = Header "h1" T.Text :> "x" :> ("y" :> Put '[JSON] String :<|> SubAPI)
 
 type SubAPI3 =
@@ -140,7 +148,6 @@ spec = do
         getRoutes @(Stream 'POST 201 NoFraming JSON Int) `shouldMatchList` [defRoute "POST" & routeResponse .~ intResponse]
 
     describe "boring: combinators that don't change routes" $ do
-      it "Summary" $ unchanged @(Summary "summary")
       it "Fragment" $ unchanged @(Fragment Int)
       it "Vault" $ unchanged @Vault
       it "HttpVersion" $ unchanged @HttpVersion
@@ -165,6 +172,19 @@ spec = do
               withAddedDescRoutes = getRoutes @(Description "Overall" :> DescriptionAPI)
               expectedRoutes = epRoute1 <> (epRoute2 & traversed . routeDescription ?~ "Overall")
           in  withAddedDescRoutes `shouldMatchList` expectedRoutes
+      describe "Summary" $ do
+        it "Should work as intended" $
+          getRoutes @(Summary "summ" :> SubAPI)
+            `shouldMatchList` (getRoutes @SubAPI <&> routeSummary ?~ "summ")
+        it "Should not override more specific summaries" $
+          getRoutes @(Summary "summ1" :> Summary "summ2" :> SubAPI)
+            `shouldMatchList` getRoutes @(Summary "summ2" :> SubAPI)
+        it "Should set summary for sub-routes without summaries" $
+          let epRoute1 = getRoutes @SummaryEP1
+              epRoute2 = getRoutes @SummaryEP2
+              withAddedSummRoutes = getRoutes @(Summary "Overall" :> SummaryAPI)
+              expectedRoutes = epRoute1 <> (epRoute2 & traversed . routeSummary ?~ "Overall")
+          in  withAddedSummRoutes `shouldMatchList` expectedRoutes
       it "Symbol :>" $ do
         let prep = routePath %~ prependPathPart "sym"
         getRoutes @("sym" :> SubAPI) `shouldMatchList` prep <$> getRoutes @SubAPI

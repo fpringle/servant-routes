@@ -460,8 +460,8 @@ instance (HasRoutes api, KnownSymbol realm) => HasRoutes (BasicAuth realm usr :>
 instance (HasRoutes api, KnownSymbol sym) => HasRoutes (Description sym :> api) where
   getRoutes = getRoutes @api <&> routeDescription %~ (<|> Just (RouteDescription (knownSymbolT @sym)))
 
-instance (HasRoutes api) => HasRoutes (Summary sym :> api) where
-  getRoutes = getRoutes @api
+instance (HasRoutes api, KnownSymbol sym) => HasRoutes (Summary sym :> api) where
+  getRoutes = getRoutes @api <&> routeSummary %~ (<|> Just (RouteSummary (knownSymbolT @sym)))
 
 instance
   (HasRoutes api, KnownSymbol tag) =>

@@ -31,6 +31,7 @@ instance Q.Arbitrary Route where
     _routeResponse <- arbitrary
     _routeAuths <- Set.fromList <$> Q.listOf genAuths
     _routeDescription <- Q.liftArbitrary genDescription
+    _routeSummary <- Q.liftArbitrary genSummary
 
     pure Route {..}
     where
@@ -40,6 +41,7 @@ instance Q.Arbitrary Route where
           , Custom <$> genAlphaText
           ]
       genDescription = RouteDescription . T.unwords <$> Q.listOf genAlphaText
+      genSummary = RouteSummary . T.unwords <$> Q.scale (`div` 2) (Q.listOf genAlphaText)
 
   shrink r =
     routeMethod shrinkMethod r
@@ -50,6 +52,7 @@ instance Q.Arbitrary Route where
       <> routeResponse Q.shrink r
       <> routeAuths (shrinkSet shrinkAuth) r
       <> routeDescription (Q.liftShrink (coerce shrinkText)) r
+      <> routeSummary (Q.liftShrink (coerce shrinkText)) r
     where
       shrinkMethod = either (const []) (fmap renderStdMethod . Q.shrinkBoundedEnum) . parseMethod
       shrinkSet shr = fmap Set.fromList . Q.shrinkList shr . Set.toList
