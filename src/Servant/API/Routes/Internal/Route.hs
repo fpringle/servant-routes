@@ -45,12 +45,12 @@ import "this" Servant.API.Routes.Path
 -- | Description of a route. This will correspond to the Servant @Description@ combinator.
 newtype RouteDescription = RouteDescription {unDescription :: T.Text}
   deriving (Show)
-  deriving (Eq, IsString, Ord, Semigroup, Monoid) via T.Text
+  deriving (Eq, IsString, Ord, Semigroup, Monoid, ToJSON, FromJSON) via T.Text
 
 -- | Short summary of a route. This will correspond to the Servant @Summary@ combinator.
 newtype RouteSummary = RouteSummary {unSummary :: T.Text}
   deriving (Show)
-  deriving (Eq, IsString, Ord, Semigroup, Monoid) via T.Text
+  deriving (Eq, IsString, Ord, Semigroup, Monoid, ToJSON, FromJSON) via T.Text
 
 -- | A simple representation of a single endpoint of an API.
 data Route = Route
@@ -81,4 +81,6 @@ instance ToJSON Route where
       , "request_body" .= _routeRequestBody
       , "response" .= _routeResponse
       , "auths" .= _routeAuths
+      , "description" .= _routeDescription
+      , "summary" .= _routeSummary
       ]
