@@ -12,6 +12,7 @@ module Servant.API.Routes.Internal.Route
   ( -- * API routes
     Route (..)
   , RouteDescription (..)
+  , RouteSummary (..)
 
     -- * Optics #optics#
   , routeMethod
@@ -22,6 +23,7 @@ module Servant.API.Routes.Internal.Route
   , routeResponse
   , routeAuths
   , routeDescription
+  , routeSummary
   )
 where
 
@@ -45,6 +47,11 @@ newtype RouteDescription = RouteDescription {unDescription :: T.Text}
   deriving (Show)
   deriving (Eq, IsString, Ord, Semigroup, Monoid) via T.Text
 
+-- | Short summary of a route. This will correspond to the Servant @Summary@ combinator.
+newtype RouteSummary = RouteSummary {unSummary :: T.Text}
+  deriving (Show)
+  deriving (Eq, IsString, Ord, Semigroup, Monoid) via T.Text
+
 -- | A simple representation of a single endpoint of an API.
 data Route = Route
   { _routeMethod :: Method
@@ -55,6 +62,7 @@ data Route = Route
   , _routeResponse :: Responses
   , _routeAuths :: Set.Set Auth
   , _routeDescription :: Maybe RouteDescription
+  , _routeSummary :: Maybe RouteSummary
   }
   deriving (Show, Eq)
 
