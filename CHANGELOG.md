@@ -10,6 +10,7 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 ### Added
 
 - A function to sort `Route`s before printing them to stdout. [#32](https://github.com/fpringle/servant-routes/pull/32)
+- Add support for Servant's `Description` and `Summary` combinators. [#29](https://github.com/fpringle/servant-routes/pull/29)
 
 ## [0.1.0.0] - 03.05.2025
 
