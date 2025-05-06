@@ -1,6 +1,6 @@
 # servant-routes
 
-This package alllows us to automatically convert type-level Servant representations of APIs to concrete term-level representations.
+This package allows us to automatically convert type-level Servant representations of APIs to concrete term-level representations.
 
 See `Servant.API.Routes` for in-depth documentation.
 

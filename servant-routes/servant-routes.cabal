@@ -15,6 +15,7 @@ category:           Servant, Web
 build-type:         Simple
 extra-doc-files:    CHANGELOG.md
                     README.md
+
 tested-with:
     GHC == 8.8.4
   , GHC == 8.10.7
