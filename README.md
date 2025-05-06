@@ -70,6 +70,7 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
 [
     {
         "auths": [],
+        "description": null,
         "method": "GET",
         "params": [],
         "path": "/users/list",
@@ -78,10 +79,12 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
         "response": {
             "headers": [],
             "type": "[User]"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [],
+        "description": null,
         "method": "POST",
         "params": [],
         "path": "/users/create",
@@ -90,10 +93,12 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
         "response": {
             "headers": [],
             "type": "UserID"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [],
+        "description": null,
         "method": "GET",
         "params": [
             {
@@ -113,10 +118,12 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
         "response": {
             "headers": [],
             "type": "User"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [],
+        "description": null,
         "method": "GET",
         "params": [],
         "path": "/transactions/<TransactionID>",
@@ -130,12 +137,14 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
                 }
             ],
             "type": "Transaction"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [
             "Basic admin"
         ],
+        "description": null,
         "method": "DELETE",
         "params": [],
         "path": "/admin/users/delete/<[UserID]>",
@@ -144,7 +153,8 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
         "response": {
             "headers": [],
             "type": "UserID"
-        }
+        },
+        "summary": null
     }
 ]
 ```
@@ -211,6 +221,7 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
 [
     {
         "auths": [],
+        "description": null,
         "method": "GET",
         "params": [],
         "path": "/users/list",
@@ -219,10 +230,12 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
         "response": {
             "headers": [],
             "type": "[User]"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [],
+        "description": null,
         "method": "POST",
         "params": [],
         "path": "/users/create",
@@ -231,10 +244,12 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
         "response": {
             "headers": [],
             "type": "UserID"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [],
+        "description": null,
         "method": "GET",
         "params": [
             {
@@ -254,10 +269,12 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
         "response": {
             "headers": [],
             "type": "User"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [],
+        "description": null,
         "method": "GET",
         "params": [],
         "path": "/transactions/<TransactionID>",
@@ -271,12 +288,14 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
                 }
             ],
             "type": "Transaction"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [
             "Basic admin"
         ],
+        "description": null,
         "method": "DELETE",
         "params": [],
         "path": "/admin/users/delete/<[UserID]>",
@@ -285,10 +304,10 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
         "response": {
             "headers": [],
             "type": "UserID"
-        }
+        },
+        "summary": null
     }
 ]
-
 ```
 
 </details>
@@ -334,6 +353,7 @@ Note that each route is the same as above, but with an extra `response.header` `
 [
     {
         "auths": [],
+        "description": null,
         "method": "GET",
         "params": [],
         "path": "/users/list",
@@ -347,10 +367,12 @@ Note that each route is the same as above, but with an extra `response.header` `
                 }
             ],
             "type": "[User]"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [],
+        "description": null,
         "method": "POST",
         "params": [],
         "path": "/users/create",
@@ -364,10 +386,12 @@ Note that each route is the same as above, but with an extra `response.header` `
                 }
             ],
             "type": "UserID"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [],
+        "description": null,
         "method": "GET",
         "params": [
             {
@@ -392,10 +416,12 @@ Note that each route is the same as above, but with an extra `response.header` `
                 }
             ],
             "type": "User"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [],
+        "description": null,
         "method": "GET",
         "params": [],
         "path": "/transactions/<TransactionID>",
@@ -413,12 +439,14 @@ Note that each route is the same as above, but with an extra `response.header` `
                 }
             ],
             "type": "Transaction"
-        }
+        },
+        "summary": null
     },
     {
         "auths": [
             "Basic admin"
         ],
+        "description": null,
         "method": "DELETE",
         "params": [],
         "path": "/admin/users/delete/<[UserID]>",
@@ -432,7 +460,8 @@ Note that each route is the same as above, but with an extra `response.header` `
                 }
             ],
             "type": "UserID"
-        }
+        },
+        "summary": null
     }
 ]
 ```
