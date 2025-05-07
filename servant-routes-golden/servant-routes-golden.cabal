@@ -75,3 +75,23 @@ library
     Servant.API.Routes.Golden
   hs-source-dirs:   src
   default-language: Haskell2010
+
+test-suite servant-routes-golden-test
+  import:
+      warnings
+    , deps
+    , extensions
+  default-language: Haskell2010
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          Spec.hs
+  other-modules:
+    Servant.API.Routes.GoldenSpec
+  build-tool-depends:
+      hspec-discover:hspec-discover
+  ghc-options:      -Wno-orphans
+  build-depends:
+    , servant-routes-golden
+    , servant >= 0.17 && < 0.21
+    , hspec >= 2.9 && < 2.12
+    , QuickCheck >= 2.14 && < 2.15
