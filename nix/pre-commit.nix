@@ -4,7 +4,7 @@ let
   nix-pre-commit-hooks =
     import (builtins.fetchTarball "https://github.com/cachix/pre-commit-hooks.nix/tarball/master");
   haskellFilePattern = "\\.l?hs(-boot)?$";
-  haskellSrcFilePattern = "^src.*\\.l?hs(-boot)?$";
+  haskellSrcFilePattern = "^.*/src.*\\.l?hs(-boot)?$";
   hlint = "${nixpkgs.haskellPackages.hlint}/bin/hlint";
   fourmolu = "${nixpkgs.haskellPackages.fourmolu}/bin/fourmolu";
 
