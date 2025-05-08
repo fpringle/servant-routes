@@ -53,6 +53,7 @@ module Servant.API.Routes
     -- defining their own combinators.
   , HasRoutes (..)
   , printRoutes
+  , printRoutesSorted
   , printRoutesJSON
   , printRoutesJSONPretty
 
@@ -107,6 +108,7 @@ import qualified Data.Aeson.Key as AK (fromText)
 import qualified Data.Aeson.Types as A (Pair)
 import Data.Bifunctor (bimap)
 import Data.Foldable (foldl', traverse_)
+import Data.List (sort)
 import qualified Data.Map as Map
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.IO as T
@@ -279,6 +281,14 @@ class HasRoutes api where
 -- | Get all the routes of an API and print them to stdout. See 'renderRoute' for examples.
 printRoutes :: forall api. HasRoutes api => IO ()
 printRoutes = traverse_ printRoute $ getRoutes @api
+  where
+    printRoute = T.putStrLn . renderRoute
+
+{- | Get all the routes of an API, sort them by path and method, and print them to stdout.
+ See 'renderRoute' for examples.
+-}
+printRoutesSorted :: forall api. HasRoutes api => IO ()
+printRoutesSorted = traverse_ printRoute . sort $ getRoutes @api
   where
     printRoute = T.putStrLn . renderRoute
 
