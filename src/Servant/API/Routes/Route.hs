@@ -24,7 +24,13 @@ module Servant.API.Routes.Route
   , routeRequestBody
   , routeResponse
   , routeAuths
+  , routeDescription
+  , routeSummary
   , add
+
+    -- * Auxiliary types
+  , RouteDescription (..)
+  , RouteSummary (..)
   )
 where
 
@@ -52,6 +58,8 @@ defRoute method =
     , _routeRequestBody = noRequest
     , _routeResponse = noResponse
     , _routeAuths = mempty
+    , _routeDescription = Nothing
+    , _routeSummary = Nothing
     }
 
 {- | Pretty-print a 'Route'. Note that the output is minimal and doesn't contain all the information
