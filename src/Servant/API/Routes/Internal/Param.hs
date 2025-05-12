@@ -47,9 +47,9 @@ instance Ord Param where
       S.FlagParam name1 `comp` S.FlagParam name2 =
         name1 `compare` name2
       S.SingleParam {} `comp` _ = LT
-      _ `comp` S.SingleParam {} = LT
+      _ `comp` S.SingleParam {} = GT
       S.ArrayElemParam {} `comp` _ = LT
-      _ `comp` S.ArrayElemParam {} = LT
+      _ `comp` S.ArrayElemParam {} = GT
 
 data ParamType
   = SingleParam
