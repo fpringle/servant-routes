@@ -4,11 +4,11 @@ module Servant.API.Routes.RequestSpec
 where
 
 import Servant.API.Routes.Internal.Request
-import "this" Servant.API.Routes.SomeSpec hiding (spec)
 import Servant.API.Routes.Util
 import Test.Hspec as H
 import Test.Hspec.QuickCheck as H
 import Test.QuickCheck as Q
+import "this" Servant.API.Routes.SomeSpec hiding (spec)
 
 {- hlint ignore "Monoid law, right identity" -}
 {- hlint ignore "Monoid law, left identity" -}
@@ -31,3 +31,5 @@ spec = do
       \(xs :: [Request]) -> mconcat xs === foldr (<>) mempty xs
   it "AllTypeable" $ do
     typeReps @'[Int, String] `shouldMatchList` [intTypeRep, strTypeRep]
+  describe "Hand-rolled instances" $ do
+    testEqInstances @Request

@@ -25,7 +25,7 @@ genSome gen =
 shrinkSome :: (a -> [a]) -> Some a -> [Some a]
 shrinkSome shr = fmap S.fromList . Q.shrinkList shr . S.toList
 
-instance Q.Arbitrary a => Q.Arbitrary (Some a) where
+instance (Q.Arbitrary a) => Q.Arbitrary (Some a) where
   arbitrary = genSome arbitrary
   shrink = shrinkSome shrink
 
@@ -39,7 +39,7 @@ genAtLeast2 gen = do
   as <- Q.listOf gen
   pure . AtLeast2 $ a1 : a2 : as
 
-instance Arbitrary a => Arbitrary (AtLeast2 a) where
+instance (Arbitrary a) => Arbitrary (AtLeast2 a) where
   arbitrary = genAtLeast2 arbitrary
   shrink = fmap AtLeast2 . filter ((>= 2) . length) . shrink . unAtLeast2
 

@@ -4,13 +4,13 @@ module Servant.API.Routes.ResponseSpec
 where
 
 import qualified Data.Set as Set
-import "this" Servant.API.Routes.HeaderSpec (sampleReps)
 import Servant.API.Routes.Internal.Response
-import "this" Servant.API.Routes.SomeSpec hiding (spec)
 import Servant.API.Routes.Util
 import Test.Hspec as H
 import Test.Hspec.QuickCheck as H
 import Test.QuickCheck as Q
+import "this" Servant.API.Routes.HeaderSpec (sampleReps)
+import "this" Servant.API.Routes.SomeSpec hiding (spec)
 
 {- hlint ignore "Monoid law, right identity" -}
 {- hlint ignore "Monoid law, left identity" -}
@@ -40,3 +40,6 @@ spec = do
       \(x :: Responses) -> mempty <> x === x
     prop "Concatentation" $ do
       \(xs :: [Responses]) -> mconcat xs === foldr (<>) mempty xs
+  describe "Hand-rolled instances" $ do
+    testEqInstances @Response
+    testEqInstances @Responses

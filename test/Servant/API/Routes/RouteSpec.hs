@@ -17,6 +17,7 @@ import Servant.API.Routes.PathSpec (genAlphaText, shrinkText)
 import Servant.API.Routes.RequestSpec ()
 import Servant.API.Routes.ResponseSpec ()
 import Servant.API.Routes.Route
+import Servant.API.Routes.Util
 import Test.Hspec as H
 import Test.QuickCheck as Q
 
@@ -49,7 +50,7 @@ instance Q.Arbitrary Route where
     where
       shrinkMethod = either (const []) (fmap renderStdMethod . Q.shrinkBoundedEnum) . parseMethod
       shrinkSet shr = fmap Set.fromList . Q.shrinkList shr . Set.toList
-      shrinkSubset :: Ord a => Set.Set a -> [Set.Set a]
+      shrinkSubset :: (Ord a) => Set.Set a -> [Set.Set a]
       shrinkSubset = shrinkSet (const [])
       shrinkAuth = \case
         Basic realm -> Basic <$> shrinkText realm
@@ -74,3 +75,6 @@ spec = do
                 & routeParams .~ Set.fromList [sing, arrayElem, flag]
             expected = "PUT /api/v2?" <> T.intercalate "&" [singExpected, arrayElemExpected, flagExpected]
         in  renderRoute route `shouldBe` expected
+  describe "Hand-rolled instances" $ do
+    testEqInstances @ParamBasicQInstance
+    testOrdInstances @ParamBasicQInstance
