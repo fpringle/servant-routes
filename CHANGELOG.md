@@ -10,6 +10,11 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 ### Added
 
 - A function to sort `Route`s before printing them to stdout. [#32](https://github.com/fpringle/servant-routes/pull/32)
+- More GHC versions in `tested-with`.
+
+### Fixed
+
+- Bug in the hand-rolled `Ord Param` instance.
 
 ## [0.1.0.0] - 03.05.2025
 
