@@ -1,7 +1,7 @@
-args@{ compiler ? "ghc928"
+{ compiler ? "ghc928"
 }:
 let
-  inherit (import ./servant-routes.nix args)
+  inherit (import ./servant-routes.nix {inherit compiler;})
       nixpkgs sources servant-routes;
 
   pre-commit-check = import ./nix/pre-commit.nix;
