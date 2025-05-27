@@ -9,7 +9,7 @@ license-file:       LICENSE
 author:             Frederick Pringle
 maintainer:         freddyjepringle@gmail.com
 copyright:          Copyright(c) Frederick Pringle 2025
-homepage:           https://github.com/fpringle/servant-routes
+homepage:           https://github.com/fpringle/servant-routes/servant-routes-golden
 bug-reports:        https://github.com/fpringle/servant-routes/issues
 category:           Servant, Web
 build-type:         Simple
