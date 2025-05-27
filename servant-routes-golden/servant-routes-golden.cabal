@@ -95,4 +95,4 @@ test-suite servant-routes-golden-test
     , servant-routes-golden
     , servant >= 0.17 && < 0.21
     , hspec >= 2.9 && < 2.12
-    , QuickCheck >= 2.14 && < 2.15
+    , QuickCheck >= 2.14 && < 2.16
