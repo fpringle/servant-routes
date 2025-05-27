@@ -1,0 +1,48 @@
+{
+    "/x2/y1": {
+        "PUT": {
+            "auths": [],
+            "description": "desc",
+            "method": "PUT",
+            "params": [],
+            "path": "/x2/y1",
+            "request_body": null,
+            "request_headers": [
+                {
+                    "name": "h2",
+                    "type": "Maybe Text"
+                }
+            ],
+            "response": {
+                "headers": [],
+                "type": "[Char]"
+            },
+            "summary": null
+        }
+    },
+    "/x2/z1": {
+        "GET": {
+            "auths": [],
+            "description": null,
+            "method": "GET",
+            "params": [],
+            "path": "/x2/z1",
+            "request_body": null,
+            "request_headers": [
+                {
+                    "name": "h2",
+                    "type": "Maybe Text"
+                },
+                {
+                    "name": "h3",
+                    "type": "Maybe Int"
+                }
+            ],
+            "response": {
+                "headers": [],
+                "type": "[Integer]"
+            },
+            "summary": null
+        }
+    }
+}

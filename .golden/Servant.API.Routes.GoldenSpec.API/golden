@@ -1,0 +1,106 @@
+{
+    "/sub1": {
+        "POST": {
+            "auths": [],
+            "description": null,
+            "method": "POST",
+            "params": [],
+            "path": "/sub1",
+            "request_body": "[Char]",
+            "request_headers": [],
+            "response": {
+                "headers": [],
+                "type": "Int"
+            },
+            "summary": null
+        }
+    },
+    "/sub2/x": {
+        "POST": {
+            "auths": [],
+            "description": null,
+            "method": "POST",
+            "params": [],
+            "path": "/sub2/x",
+            "request_body": "[Char]",
+            "request_headers": [
+                {
+                    "name": "h1",
+                    "type": "Maybe Text"
+                }
+            ],
+            "response": {
+                "headers": [],
+                "type": "Int"
+            },
+            "summary": null
+        }
+    },
+    "/sub2/x/y": {
+        "PUT": {
+            "auths": [],
+            "description": null,
+            "method": "PUT",
+            "params": [],
+            "path": "/sub2/x/y",
+            "request_body": null,
+            "request_headers": [
+                {
+                    "name": "h1",
+                    "type": "Maybe Text"
+                }
+            ],
+            "response": {
+                "headers": [],
+                "type": "[Char]"
+            },
+            "summary": null
+        }
+    },
+    "/sub3/x2/y1": {
+        "PUT": {
+            "auths": [],
+            "description": "desc",
+            "method": "PUT",
+            "params": [],
+            "path": "/sub3/x2/y1",
+            "request_body": null,
+            "request_headers": [
+                {
+                    "name": "h2",
+                    "type": "Maybe Text"
+                }
+            ],
+            "response": {
+                "headers": [],
+                "type": "[Char]"
+            },
+            "summary": null
+        }
+    },
+    "/sub3/x2/z1": {
+        "GET": {
+            "auths": [],
+            "description": null,
+            "method": "GET",
+            "params": [],
+            "path": "/sub3/x2/z1",
+            "request_body": null,
+            "request_headers": [
+                {
+                    "name": "h2",
+                    "type": "Maybe Text"
+                },
+                {
+                    "name": "h3",
+                    "type": "Maybe Int"
+                }
+            ],
+            "response": {
+                "headers": [],
+                "type": "[Integer]"
+            },
+            "summary": null
+        }
+    }
+}

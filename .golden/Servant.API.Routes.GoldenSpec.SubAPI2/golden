@@ -1,0 +1,44 @@
+{
+    "/x": {
+        "POST": {
+            "auths": [],
+            "description": null,
+            "method": "POST",
+            "params": [],
+            "path": "/x",
+            "request_body": "[Char]",
+            "request_headers": [
+                {
+                    "name": "h1",
+                    "type": "Maybe Text"
+                }
+            ],
+            "response": {
+                "headers": [],
+                "type": "Int"
+            },
+            "summary": null
+        }
+    },
+    "/x/y": {
+        "PUT": {
+            "auths": [],
+            "description": null,
+            "method": "PUT",
+            "params": [],
+            "path": "/x/y",
+            "request_body": null,
+            "request_headers": [
+                {
+                    "name": "h1",
+                    "type": "Maybe Text"
+                }
+            ],
+            "response": {
+                "headers": [],
+                "type": "[Char]"
+            },
+            "summary": null
+        }
+    }
+}
