@@ -1,4 +1,4 @@
-{ compiler ? "ghc928"
+{ compiler ? "ghc984"
 }:
 let
   sources = import ./nix/sources.nix;
