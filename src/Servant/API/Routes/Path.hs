@@ -2,7 +2,7 @@
 Module      : Servant.API.Routes.Path
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 Simple representation of URL paths.
 -}
@@ -42,7 +42,7 @@ For example, @prependCapturePart \@Int "id"@ will transform @\/detail@ to @\/\<I
 -}
 prependCapturePart ::
   forall a.
-  Typeable a =>
+  (Typeable a) =>
   T.Text ->
   Path ->
   Path
@@ -58,7 +58,7 @@ For example, @prependCaptureAllPart \@Int "id"@ will transform @\/detail@ to @\/
 -}
 prependCaptureAllPart ::
   forall a.
-  Typeable a =>
+  (Typeable a) =>
   T.Text ->
   Path ->
   Path

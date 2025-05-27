@@ -5,7 +5,7 @@
 Module      : Servant.API.Routes.Internal.Some
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 Internal module, subject to change.
 
@@ -64,7 +64,7 @@ data Some a
 
 Use this to implement `Eq` instances for newtypes around 'Some'.
 -}
-eqSome :: forall a. Eq a => ([a] -> [a] -> Bool) -> Some a -> Some a -> Bool
+eqSome :: forall a. (Eq a) => ([a] -> [a] -> Bool) -> Some a -> Some a -> Bool
 eqSome eqList = eq
   where
     None `eq` None = True

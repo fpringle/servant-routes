@@ -5,7 +5,7 @@
 Module      : Servant.API.Routes.Internal.Response
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 Internal module, subject to change.
 -}
@@ -63,7 +63,7 @@ Similar to 'Typeable', but also get the response 'Servant.API.Header.Header's.
 class HasResponse a where
   getResponse :: Response
 
-instance {-# OVERLAPPABLE #-} Typeable a => HasResponse a where
+instance {-# OVERLAPPABLE #-} (Typeable a) => HasResponse a where
   getResponse = Response (typeRepOf @a) mempty
 
 instance {-# OVERLAPPING #-} (HasResponse a, GetHeaderReps hs) => HasResponse (Headers hs a) where

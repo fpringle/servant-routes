@@ -2,7 +2,7 @@
 Module      : Servant.API.Routes.Request
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 Term-level representation of the request bodies that Servant endpoints expect.
 -}
@@ -31,7 +31,7 @@ noRequest = Request None
 -}
 oneRequest ::
   forall a.
-  Typeable a =>
+  (Typeable a) =>
   Request
 oneRequest = Request . One $ typeRepOf @a
 
@@ -40,7 +40,7 @@ Equivalent to multiple 'Servant.API.ReqBody's chained with @:>@.
 -}
 allOfRequests ::
   forall as.
-  AllTypeable as =>
+  (AllTypeable as) =>
   Request
 allOfRequests = Request . Many $ typeReps @as
 

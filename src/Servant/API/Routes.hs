@@ -6,7 +6,7 @@
 Module      : Servant.API.Routes
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 This package provides two things:
 
@@ -280,7 +280,7 @@ class HasRoutes api where
   getRoutes :: [Route]
 
 -- | Get all the routes of an API and print them to stdout. See 'renderRoute' for examples.
-printRoutes :: forall api. HasRoutes api => IO ()
+printRoutes :: forall api. (HasRoutes api) => IO ()
 printRoutes = traverse_ printRoute $ getRoutes @api
   where
     printRoute = T.putStrLn . renderRoute
@@ -288,7 +288,7 @@ printRoutes = traverse_ printRoute $ getRoutes @api
 {- | Get all the routes of an API, sort them by path and method, and print them to stdout.
  See 'renderRoute' for examples.
 -}
-printRoutesSorted :: forall api. HasRoutes api => IO ()
+printRoutesSorted :: forall api. (HasRoutes api) => IO ()
 printRoutesSorted = traverse_ printRoute . sort $ getRoutes @api
   where
     printRoute = T.putStrLn . renderRoute
@@ -296,7 +296,7 @@ printRoutesSorted = traverse_ printRoute . sort $ getRoutes @api
 {- | Same as 'printRoutes`, but encode the t'Routes' as JSON before printing to stdout.
 For an even prettier version, see 'printRoutesJSONPretty'.
 -}
-printRoutesJSON :: forall api. HasRoutes api => IO ()
+printRoutesJSON :: forall api. (HasRoutes api) => IO ()
 printRoutesJSON =
   T.putStrLn
     . TL.toStrict
@@ -306,7 +306,7 @@ printRoutesJSON =
     $ getRoutes @api
 
 -- | Pretty-encode the t'Routes' as JSON before printing to stdout.
-printRoutesJSONPretty :: forall api. HasRoutes api => IO ()
+printRoutesJSONPretty :: forall api. (HasRoutes api) => IO ()
 printRoutesJSONPretty =
   T.putStrLn
     . TL.toStrict
@@ -319,7 +319,7 @@ instance HasRoutes EmptyAPI where
   getRoutes = mempty
 
 instance
-  ReflectMethod (method :: StdMethod) =>
+  (ReflectMethod (method :: StdMethod)) =>
   HasRoutes (NoContentVerb method)
   where
   getRoutes = pure $ defRoute method

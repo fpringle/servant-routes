@@ -4,7 +4,7 @@
 Module      : Servant.API.Routes.Auth
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 Here we define a very very basic type to represent authentication schemes.
 -}
@@ -28,7 +28,7 @@ For example:
 -}
 basicAuth ::
   forall realm.
-  KnownSymbol realm =>
+  (KnownSymbol realm) =>
   Auth
 basicAuth = Basic $ knownSymbolT @realm
 
@@ -42,6 +42,6 @@ For example:
 -}
 customAuth ::
   forall tag.
-  KnownSymbol tag =>
+  (KnownSymbol tag) =>
   Auth
 customAuth = Custom $ knownSymbolT @tag

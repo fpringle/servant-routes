@@ -2,7 +2,7 @@
 Module      : Servant.API.Routes.Route
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 Simple term-level representation of Servant API endpoints.
 -}
@@ -91,5 +91,5 @@ renderRoute Route {..} =
         then ""
         else "?" <> T.intercalate "&" (renderParam <$> Set.toList _routeParams)
 
-add :: Ord a => ASetter s t (Set.Set a) (Set.Set a) -> a -> s -> t
+add :: (Ord a) => ASetter s t (Set.Set a) (Set.Set a) -> a -> s -> t
 add setter = over setter . Set.insert

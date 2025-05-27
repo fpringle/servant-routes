@@ -2,7 +2,7 @@
 Module      : Servant.API.Routes.Header
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 Simple representation of HTTP headers.
 -}

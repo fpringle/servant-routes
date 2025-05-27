@@ -5,7 +5,7 @@
 Module      : Servant.API.Routes.Internal.Request
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 Internal module, subject to change.
 -}

@@ -2,7 +2,7 @@
 Module      : Servant.API.Routes.Response
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 Term-level representation of the responses that Servant endpoints can return.
 -}
@@ -32,7 +32,7 @@ noResponse = Responses None
 -- | There is only one possible response. Equivalent to a single @'Servant.API.ReqBody' _ a@.
 oneResponse ::
   forall a.
-  HasResponse a =>
+  (HasResponse a) =>
   Responses
 oneResponse = Responses . One $ getResponse @a
 
@@ -41,7 +41,7 @@ Equivalent to a 'Servant.API.UVerb's with more than one type.
 -}
 oneOfResponses ::
   forall as.
-  AllHasResponse as =>
+  (AllHasResponse as) =>
   Responses
 oneOfResponses = Responses . Many $ getResponses @as
 

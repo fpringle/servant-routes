@@ -2,7 +2,7 @@
 Module      : Servant.API.Routes.Param
 Copyright   : (c) Frederick Pringle, 2025
 License     : BSD-3-Clause
-Maintainer  : freddyjepringle@gmail.com
+Maintainer  : frederick.pringle@fpringle.com
 
 Simple representation of HTTP query params
 -}
@@ -18,9 +18,9 @@ where
 import qualified Data.Text as T
 import Data.Typeable
 import GHC.TypeLits
+import qualified Servant.Links as S
 import "this" Servant.API.Routes.Internal.Param
 import "this" Servant.API.Routes.Utils
-import qualified Servant.Links as S
 
 -- | Create a 'S.SingleParam' from a 'Symbol' and a 'TypeRep' via 'Typeable'.
 singleParam :: forall s a. (KnownSymbol s, Typeable a) => Param
