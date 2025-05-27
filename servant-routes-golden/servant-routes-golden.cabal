@@ -42,9 +42,9 @@ common deps
     , aeson >= 2.0 && < 2.3
     , text >= 1.2 && < 2.2
     , aeson-pretty >= 0.8.8 && < 0.9
-    , hspec-core
-    , hspec-golden
-    , servant-routes
+    , hspec-core >= 2.10.0 && < 2.12
+    , hspec-golden >= 0.2 && < 0.3
+    , servant-routes >= 0.1.0.0 && < 0.2
 
 common extensions
   default-extensions:
