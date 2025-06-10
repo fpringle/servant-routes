@@ -7,7 +7,10 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 
 ## [Unreleased]
 
+## [0.1.0.0] - 10.06.2025
+
 - Use the `ToJSON` instance of `Routes` to generate golden tests for an API
 - Test suite for the package uses these golden tests on a dummy API
 
-[unreleased]: https://github.com/fpringle/servant-routes/compare/8be3d0b...HEAD
+[unreleased]: https://github.com/fpringle/servant-routes/compare/golden-v0.1.0.0...HEAD
+[0.1.0.0]: https://github.com/fpringle/servant-routes/releases/tag/golden-v0.1.0.0

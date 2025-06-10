@@ -7,6 +7,8 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 
 ## [Unreleased]
 
+## [0.1.1.0] - 10.06.2025
+
 ### Added
 
 - A function to sort `Route`s before printing them to stdout. [#32](https://github.com/fpringle/servant-routes/pull/32)
@@ -27,5 +29,6 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 - Reasonably detailed README.
 - CI that builds and tests the package for each version of GHC in the `tested-with` field.
 
-[unreleased]: https://github.com/fpringle/servant-routes/compare/v0.1.0.0...HEAD
+[unreleased]: https://github.com/fpringle/servant-routes/compare/v0.1.1.0...HEAD
+[0.1.1.0]: https://github.com/fpringle/servant-routes/releases/tag/v0.1.1.0
 [0.1.0.0]: https://github.com/fpringle/servant-routes/releases/tag/v0.1.0.0
