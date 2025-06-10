@@ -1,0 +1,18 @@
+{
+    "/": {
+        "POST": {
+            "auths": [],
+            "description": null,
+            "method": "POST",
+            "params": [],
+            "path": "/",
+            "request_body": "[Char]",
+            "request_headers": [],
+            "response": {
+                "headers": [],
+                "type": "Int"
+            },
+            "summary": null
+        }
+    }
+}
