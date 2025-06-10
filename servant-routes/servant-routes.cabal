@@ -9,12 +9,13 @@ license-file:       LICENSE
 author:             Frederick Pringle
 maintainer:         freddyjepringle@gmail.com
 copyright:          Copyright(c) Frederick Pringle 2025
-homepage:           https://github.com/fpringle/servant-routes
+homepage:           https://github.com/fpringle/servant-routes/servant-routes
 bug-reports:        https://github.com/fpringle/servant-routes/issues
 category:           Servant, Web
 build-type:         Simple
 extra-doc-files:    CHANGELOG.md
                     README.md
+
 tested-with:
     GHC == 8.8.4
   , GHC == 8.10.7

@@ -11,6 +11,33 @@ permissions:
   contents: read
 
 jobs:
+  find-packages:
+    name: "Find packages by their .cabal files"
+    if: ( ( github.event_name == 'push' )
+        || ( github.event_name == 'pull_request'
+            && github.event.pull_request.draft == false
+           )
+        )
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.set-matrix.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find packages
+        id: set-matrix
+        run: |
+          set -euo pipefail
+
+          packages=$(
+            find . -name '*.cabal' | sed 's/^\.\///' | while read file; do
+              file_name=$(basename -- $file)
+              package_name="${file_name%.*}"
+              echo "{\"package\": \"${package_name}\", \"cabal_file\": \"${file}\"}"
+            done | jq -s -c
+          )
+          echo $packages
+          echo "packages=$packages" > "$GITHUB_OUTPUT"
+
   generate-matrix:
     name: "Generate matrix from cabal"
     if: ( ( github.event_name == 'push' )
@@ -18,17 +45,41 @@ jobs:
             && github.event.pull_request.draft == false
            )
         )
+    needs:
+      - find-packages
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     runs-on: ubuntu-latest
+    env:
+      GET_TESTED_VERSION: 0.1.7.1
+      PACKAGES: ${{ needs.find-packages.outputs.packages }}
+
     steps:
-      - name: Extract the tested GHC versions
-        id: set-matrix
-        uses: kleidukos/get-tested@v0.1.7.1
+      - uses: actions/checkout@v4
+      - name: Install GH CLI
+        uses: dev-hanz-ops/install-gh-cli-action@v0.2.1
         with:
-          cabal-file: servant-routes.cabal
-          ubuntu-version: "latest"
-          version: 0.1.7.1
+          gh-cli-version: 2.63.0
+      - name: Set up get-tested
+        uses: Kleidukos/get-tested/setup-get-tested@5f873c05c435a1f50e4c5ce815d687c1bff3b93b
+        with:
+          version: ${{ env.GET_TESTED_VERSION }}
+      - name: Extract GHC versions for each package
+        id: set-matrix
+        run: |
+          set -euo pipefail
+
+          matrix=$(echo $PACKAGES | jq -c '.[]' | while read package; do
+            name=$(echo $package | jq -r '.package')
+            echo "Running get-tested on package ${name}" >&2
+            cabal_file=$(echo $package | jq -r '.cabal_file')
+            output=$(./get-tested --ubuntu-version=latest $cabal_file)
+            echo $output | sed 's/^matrix=//' | jq ".include[] |= . + ${package}"
+          done | jq -s -c '{ include: map(.include) | add }')
+
+          echo $matrix
+
+          echo "matrix=$matrix" > "$GITHUB_OUTPUT"
 
   test:
     if: ( ( github.event_name == 'push' )
@@ -36,37 +87,38 @@ jobs:
             && github.event.pull_request.draft == false
            )
         )
-    name: ${{ matrix.ghc }} on ${{ matrix.os }}
+    name: Test ${{ matrix.package }} ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generate-matrix
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: haskell-actions/setup@v2.7
-      with:
-        ghc-version: ${{ matrix.ghc }}
-        cabal-version: '3.0'
+      - uses: haskell-actions/setup@v2.7
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: '3.0'
 
-    - name: Cache
-      uses: actions/cache@v3
-      env:
-        cache-name: cache-cabal
-      with:
-        path: ~/.cabal
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/cabal.project') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
+      - name: Cache
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-cabal
+        with:
+          path: ~/.cabal
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/cabal.project') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
 
-    - name: Install dependencies
-      run: |
-        cabal update
-        cabal build --only-dependencies --enable-tests --enable-benchmarks
-    - name: Build
-      run: cabal build --enable-tests --enable-benchmarks all
-    - name: Run tests
-      run: cabal test all
+      - name: Install dependencies
+        run: |
+          cabal update
+          cabal build --only-dependencies --enable-tests --enable-benchmarks ${{ matrix.package }}
+      - name: Build
+        run: cabal build --enable-tests --enable-benchmarks ${{ matrix.package }}
+      - name: Run tests
+        run: cabal test ${{ matrix.package }}

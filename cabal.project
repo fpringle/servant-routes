@@ -1,4 +1,5 @@
 tests: True
 
 packages:
-  servant-routes.cabal
+  servant-routes/
+  servant-routes-golden/
