@@ -17,7 +17,7 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 
 ### Fixed
 
-- Bug in the hand-rolled `Ord Param` instance.
+- Bug in the hand-rolled `Ord Param` instance. [#34](https://github.com/fpringle/servant-routes/pull/34)
 
 ## [0.1.0.0] - 03.05.2025
 
