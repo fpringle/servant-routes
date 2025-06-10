@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               servant-routes
-version:            0.1.0.0
+version:            0.1.1.0
 synopsis:           Generate route descriptions from Servant APIs
 description:
     See the documentation of 'Servant.API.Routes'.
