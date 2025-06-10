@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               servant-routes
-version:            0.1.0.0
+version:            0.1.1.0
 synopsis:           Generate route descriptions from Servant APIs
 description:
     See the documentation of 'Servant.API.Routes'.
@@ -9,7 +9,7 @@ license-file:       LICENSE
 author:             Frederick Pringle
 maintainer:         freddyjepringle@gmail.com
 copyright:          Copyright(c) Frederick Pringle 2025
-homepage:           https://github.com/fpringle/servant-routes/servant-routes
+homepage:           https://github.com/fpringle/servant-routes
 bug-reports:        https://github.com/fpringle/servant-routes/issues
 category:           Servant, Web
 build-type:         Simple
@@ -33,6 +33,7 @@ tested-with:
 source-repository head
   type:           git
   location:       https://github.com/fpringle/servant-routes
+  subdir:         servant-routes
 
 common warnings
   ghc-options: -Wall -Wno-unused-do-bind
