@@ -22,7 +22,6 @@ module Servant.API.Routes.Internal.Route
   , routeRequestBody
   , routeResponse
   , routeAuths
-  , routeDescription
   , routeSummary
   )
 where
@@ -59,7 +58,6 @@ data Route = Route
   , _routeRequestBody :: Request
   , _routeResponse :: Responses
   , _routeAuths :: Set.Set Auth
-  , _routeDescription :: Maybe RouteDescription
   , _routeSummary :: Maybe RouteSummary
   }
   deriving (Show, Eq)
@@ -79,6 +77,5 @@ instance ToJSON Route where
       , "request_body" .= _routeRequestBody
       , "response" .= _routeResponse
       , "auths" .= _routeAuths
-      , "description" .= _routeDescription
       , "summary" .= _routeSummary
       ]
