@@ -11,7 +11,7 @@ Internal module, subject to change.
 module Servant.API.Routes.Internal.Route
   ( -- * API routes
     Route (..)
-  , RouteDescription (..)
+  , ResponseDescription (..)
   , RouteSummary (..)
 
     -- * Optics #optics#
@@ -43,7 +43,7 @@ import "this" Servant.API.Routes.Param
 import "this" Servant.API.Routes.Path
 
 {- | Short summary of a route. This will correspond to the Servant @Summary@ combinator.
-The behaviour described for 'RouteDescription' is the same for 'RouteSummary'.
+The behaviour described for 'ResponseDescription' is the same for 'RouteSummary'.
 -}
 newtype RouteSummary = RouteSummary {unSummary :: T.Text}
   deriving (Show)

@@ -7,7 +7,7 @@ Maintainer  : frederick.pringle@fpringle.com
 Internal module, subject to change.
 -}
 module Servant.API.Routes.Internal.Description
-  ( RouteDescription (..)
+  ( ResponseDescription (..)
   )
 where
 
@@ -33,8 +33,8 @@ type MyAPI =
 The @Operation@ that @servant-openapi@ generates for the @GET /user@ endpoint will have the two
 @Description@s 'mappend'-ed together: @"User sub-APIGet my user"@.
 
-The corresponding 'Route' will take the most specific 'RouteDescription': @"Get my user"@.
+The corresponding 'Route' will take the most specific 'ResponseDescription': @"Get my user"@.
 -}
-newtype RouteDescription = RouteDescription {unDescription :: T.Text}
+newtype ResponseDescription = ResponseDescription {unDescription :: T.Text}
   deriving (Show)
   deriving (Eq, IsString, Ord, Semigroup, Monoid, ToJSON, FromJSON) via T.Text

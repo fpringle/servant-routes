@@ -3,13 +3,17 @@ module Servant.API.Routes.ResponseSpec
   )
 where
 
+import Data.Coerce
 import qualified Data.Set as Set
+import qualified Data.Text as T
+import Servant.API.Routes.Internal.Description
 import Servant.API.Routes.Internal.Response
 import Servant.API.Routes.Util
 import Test.Hspec as H
 import Test.Hspec.QuickCheck as H
 import Test.QuickCheck as Q
 import "this" Servant.API.Routes.HeaderSpec (sampleReps)
+import "this" Servant.API.Routes.PathSpec hiding (spec)
 import "this" Servant.API.Routes.SomeSpec hiding (spec)
 
 {- hlint ignore "Monoid law, right identity" -}
@@ -24,10 +28,13 @@ instance Q.Arbitrary Response where
   arbitrary = do
     _responseType <- Q.elements [intTypeRep, strTypeRep, unitTypeRep]
     _responseHeaders <- Set.fromList <$> Q.sublistOf sampleReps
+    _responseDescription <- Q.liftArbitrary genDescription
     pure Response {..}
-  shrink =
-    responseHeaders $
-      fmap Set.fromList . Q.shrinkList (const []) . Set.toList
+    where
+      genDescription = ResponseDescription . T.unwords <$> Q.listOf genAlphaText
+  shrink r =
+    responseHeaders (fmap Set.fromList . Q.shrinkList (const []) . Set.toList) r
+      <> responseDescription (Q.liftShrink (coerce shrinkText)) r
 
 spec :: Spec
 spec = do

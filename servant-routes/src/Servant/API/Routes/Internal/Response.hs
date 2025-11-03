@@ -45,7 +45,7 @@ response 'Servant.API.Header.Header's, so we do the same here.
 data Response = Response
   { _responseType :: TypeRep
   , _responseHeaders :: Set.Set HeaderRep
-  , _responseDescription :: Maybe RouteDescription
+  , _responseDescription :: Maybe ResponseDescription
   }
   deriving (Show, Eq, Ord)
 
@@ -56,13 +56,14 @@ instance ToJSON Response where
     object
       [ "type" .= typeRepToJSON _responseType
       , "headers" .= _responseHeaders
+      , "description" .= _responseDescription
       ]
 
 {- | Get a term-level response from a type-level argument. This encodes the argument(s)
 of a 'Verb' or 'UVerb'.
 
 Similar to 'Typeable', but also get the response 'Servant.API.Header.Header's and
-the 'RouteDescription'.
+the 'ResponseDescription'.
 -}
 class HasResponse a where
   getResponse :: Response

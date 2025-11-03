@@ -15,6 +15,7 @@ module Servant.API.Routes.Response
   , Response
   , responseType
   , responseHeaders
+  , responseDescription
   , responses
   , HasResponse (..)
   , AllHasResponse (..)

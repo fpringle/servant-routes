@@ -29,7 +29,7 @@ module Servant.API.Routes.Route
   , add
 
     -- * Auxiliary types
-  , RouteDescription (..)
+  , ResponseDescription (..)
   , RouteSummary (..)
   )
 where
@@ -58,7 +58,6 @@ defRoute method =
     , _routeRequestBody = noRequest
     , _routeResponse = noResponse
     , _routeAuths = mempty
-    , _routeDescription = Nothing
     , _routeSummary = Nothing
     }
 
