@@ -32,6 +32,7 @@ instance Q.Arbitrary Route where
     _routeResponse <- arbitrary
     _routeAuths <- Set.fromList <$> Q.listOf genAuths
     _routeSummary <- Q.liftArbitrary genSummary
+    _routeHost <- Q.liftArbitrary genHost
 
     pure Route {..}
     where
@@ -41,6 +42,11 @@ instance Q.Arbitrary Route where
           , Custom <$> genAlphaText
           ]
       genSummary = RouteSummary . T.unwords <$> Q.scale (`div` 2) (Q.listOf genAlphaText)
+      genHost =
+        RouteHost <$> do
+          h1 <- genAlphaText
+          h2 <- genAlphaText
+          pure $ h1 <> "." <> h2
 
   shrink r =
     routeMethod shrinkMethod r
