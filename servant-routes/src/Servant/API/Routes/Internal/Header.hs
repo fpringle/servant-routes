@@ -39,6 +39,7 @@ mkHeaderRep ::
 mkHeaderRep =
   HeaderRep
     { _hName = knownSymbolT @sym
+    , _hDescription = Nothing
     , _hType = typeRep @a
     }
 
@@ -59,10 +60,10 @@ HeaderRep {_hName = "sym", _hType = Maybe Int}
 @
 -}
 mkHeaderRepOptional :: HeaderRep -> HeaderRep
-mkHeaderRepOptional h@(HeaderRep _ (App (Con tc) _))
+mkHeaderRepOptional h@(HeaderRep {_hType = App (Con tc) _})
   | tc == typeRepTyCon (typeRep @Maybe) = h
-mkHeaderRepOptional (HeaderRep name (r :: TypeRep a)) =
-  HeaderRep name $ App (typeRep @Maybe) r
+mkHeaderRepOptional (HeaderRep name desc (r :: TypeRep a)) =
+  HeaderRep name desc $ App (typeRep @Maybe) r
 
 {- | Simple term-level representation of a 'Servant.API.Header.Header'.
 
@@ -74,6 +75,7 @@ data HeaderRep where
   HeaderRep ::
     forall (a :: Type).
     { _hName :: Text
+    , _hDescription :: Maybe Text
     , _hType :: TypeRep a
     } ->
     HeaderRep
@@ -81,17 +83,18 @@ data HeaderRep where
 deriving instance Show HeaderRep
 
 instance Eq HeaderRep where
-  HeaderRep n1 t1 == HeaderRep n2 t2 =
-    n1 == n2 && (SomeTypeRep t1 == SomeTypeRep t2)
+  HeaderRep n1 d1 t1 == HeaderRep n2 d2 t2 =
+    n1 == n2 && d1 == d2 && (SomeTypeRep t1 == SomeTypeRep t2)
 
 instance Ord HeaderRep where
-  HeaderRep n1 t1 `compare` HeaderRep n2 t2 =
-    n1 `compare` n2 <> (SomeTypeRep t1 `compare` SomeTypeRep t2)
+  HeaderRep n1 d1 t1 `compare` HeaderRep n2 d2 t2 =
+    n1 `compare` n2 <> d1 `compare` d2 <> (SomeTypeRep t1 `compare` SomeTypeRep t2)
 
 instance ToJSON HeaderRep where
   toJSON HeaderRep {..} =
     object
       [ "name" .= _hName
+      , "description" .= _hDescription
       , "type" .= typeRepToJSON (SomeTypeRep _hType)
       ]
 
