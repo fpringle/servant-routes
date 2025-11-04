@@ -233,8 +233,12 @@ Much clearer to see the mistake. For more detailed output, use the 'ToJSON' inst
 >         "path": "/api/v2/users",
 >         "request_body": null,
 >         "request_headers": [],
->         "response": "[User]",
->         "response_headers": []
+>         "response": {
+>             "description": null,
+>             "headers": [],
+>             "type": "[User]"
+>         },
+>         "summary": null
 >     },
 >     {
 >         "auths": [],
@@ -243,8 +247,12 @@ Much clearer to see the mistake. For more detailed output, use the 'ToJSON' inst
 >         "path": "/api/v2/user",
 >         "request_body": "UserData",
 >         "request_headers": [],
->         "response": "UserId",
->         "response_headers": []
+>         "response": {
+>             "description": null,
+>             "headers": [],
+>             "type": "UserId"
+>         },
+>         "summary": null
 >     }
 > ]
 >
@@ -257,8 +265,12 @@ Much clearer to see the mistake. For more detailed output, use the 'ToJSON' inst
 >         "path": "/api/v2/users",
 >         "request_body": null,
 >         "request_headers": [],
->         "response": "[User]",
->         "response_headers": []
+>         "response": {
+>             "description": null,
+>             "headers": [],
+>             "type": "[User]"
+>         },
+>         "summary": null
 >     },
 >     {
 >         "auths": [],
@@ -267,8 +279,12 @@ Much clearer to see the mistake. For more detailed output, use the 'ToJSON' inst
 >         "path": "/user",              -- oops!
 >         "request_body": "UserData",
 >         "request_headers": [],
->         "response": "UserId",
->         "response_headers": []
+>         "response": {
+>             "description": null,
+>             "headers": [],
+>             "type": "UserId"
+>         },
+>         "summary": null
 >     }
 > ]
 -}

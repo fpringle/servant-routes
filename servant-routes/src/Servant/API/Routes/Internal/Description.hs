@@ -15,7 +15,7 @@ import Data.Aeson
 import Data.String (IsString)
 import qualified Data.Text as T
 
-{- | Description of a route. This will correspond to the Servant @Description@ combinator.
+{- | Description of a route response. This will correspond to the Servant @Description@ combinator.
 
 It should  be noted that the 'HasRoutes' behaviour for @Description@ diverges from that in
 @servant-openapi3@, in the case that one EP has multiple @Description@ combinators.

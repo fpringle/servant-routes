@@ -70,13 +70,13 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
 [
     {
         "auths": [],
-        "description": null,
         "method": "GET",
         "params": [],
         "path": "/users/list",
         "request_body": null,
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [],
             "type": "[User]"
         },
@@ -84,13 +84,13 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
     },
     {
         "auths": [],
-        "description": null,
         "method": "POST",
         "params": [],
         "path": "/users/create",
         "request_body": "UserCreateData",
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [],
             "type": "UserID"
         },
@@ -98,7 +98,6 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
     },
     {
         "auths": [],
-        "description": null,
         "method": "GET",
         "params": [
             {
@@ -116,6 +115,7 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
             }
         ],
         "response": {
+            "description": null,
             "headers": [],
             "type": "User"
         },
@@ -123,13 +123,13 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
     },
     {
         "auths": [],
-        "description": null,
         "method": "GET",
         "params": [],
         "path": "/transactions/<TransactionID>",
         "request_body": null,
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [
                 {
                     "name": "x-request-id",
@@ -144,13 +144,13 @@ ghci> BL.putStrLn . encodePretty $ getRoutes @ServantAPI -- using aeson-pretty
         "auths": [
             "Basic admin"
         ],
-        "description": null,
         "method": "DELETE",
         "params": [],
         "path": "/admin/users/delete/<[UserID]>",
         "request_body": null,
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [],
             "type": "UserID"
         },
@@ -221,13 +221,13 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
 [
     {
         "auths": [],
-        "description": null,
         "method": "GET",
         "params": [],
         "path": "/users/list",
         "request_body": null,
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [],
             "type": "[User]"
         },
@@ -235,13 +235,13 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
     },
     {
         "auths": [],
-        "description": null,
         "method": "POST",
         "params": [],
         "path": "/users/create",
         "request_body": "UserCreateData",
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [],
             "type": "UserID"
         },
@@ -249,7 +249,6 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
     },
     {
         "auths": [],
-        "description": null,
         "method": "GET",
         "params": [
             {
@@ -267,6 +266,7 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
             }
         ],
         "response": {
+            "description": null,
             "headers": [],
             "type": "User"
         },
@@ -274,13 +274,13 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
     },
     {
         "auths": [],
-        "description": null,
         "method": "GET",
         "params": [],
         "path": "/transactions/<TransactionID>",
         "request_body": null,
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [
                 {
                     "name": "x-request-id",
@@ -295,13 +295,13 @@ Note this is the same as above, so we know we refactored `ServantAPI` to `Servan
         "auths": [
             "Basic admin"
         ],
-        "description": null,
         "method": "DELETE",
         "params": [],
         "path": "/admin/users/delete/<[UserID]>",
         "request_body": null,
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [],
             "type": "UserID"
         },
@@ -353,13 +353,13 @@ Note that each route is the same as above, but with an extra `response.header` `
 [
     {
         "auths": [],
-        "description": null,
         "method": "GET",
         "params": [],
         "path": "/users/list",
         "request_body": null,
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [
                 {
                     "name": "X-Replay-Path",
@@ -372,13 +372,13 @@ Note that each route is the same as above, but with an extra `response.header` `
     },
     {
         "auths": [],
-        "description": null,
         "method": "POST",
         "params": [],
         "path": "/users/create",
         "request_body": "UserCreateData",
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [
                 {
                     "name": "X-Replay-Path",
@@ -391,7 +391,6 @@ Note that each route is the same as above, but with an extra `response.header` `
     },
     {
         "auths": [],
-        "description": null,
         "method": "GET",
         "params": [
             {
@@ -409,6 +408,7 @@ Note that each route is the same as above, but with an extra `response.header` `
             }
         ],
         "response": {
+            "description": null,
             "headers": [
                 {
                     "name": "X-Replay-Path",
@@ -421,13 +421,13 @@ Note that each route is the same as above, but with an extra `response.header` `
     },
     {
         "auths": [],
-        "description": null,
         "method": "GET",
         "params": [],
         "path": "/transactions/<TransactionID>",
         "request_body": null,
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [
                 {
                     "name": "X-Replay-Path",
@@ -446,13 +446,13 @@ Note that each route is the same as above, but with an extra `response.header` `
         "auths": [
             "Basic admin"
         ],
-        "description": null,
         "method": "DELETE",
         "params": [],
         "path": "/admin/users/delete/<[UserID]>",
         "request_body": null,
         "request_headers": [],
         "response": {
+            "description": null,
             "headers": [
                 {
                     "name": "X-Replay-Path",
