@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_HADDOCK not-home #-}
@@ -24,6 +25,9 @@ import Data.Kind (Type)
 import Data.Text
 import GHC.TypeLits
 import Servant.API
+#if MIN_VERSION_servant(0,20,3)
+import Servant.API.MultiVerb
+#endif
 import Type.Reflection
 import "this" Servant.API.Routes.Utils
 
@@ -99,6 +103,20 @@ instance
   GetHeaderRep (Header h v)
   where
   getHeaderRep = mkHeaderRep @h @v
+
+#if MIN_VERSION_servant(0,20,3)
+instance (KnownSymbol name, Typeable v) =>
+  GetHeaderRep (DescHeader name desc v)
+  where
+  getHeaderRep = mkHeaderRep @name @v
+
+instance (GetHeaderRep h) =>
+  GetHeaderRep (OptHeader h)
+  where
+  getHeaderRep =
+    let hRep = getHeaderRep @h
+    in  mkHeaderRepOptional hRep
+#endif
 
 {- | Utility class to let us get a value-level list of 'HeaderRep's from a
 type-level list of 'Servant.API.Header.Header's. See the implementation of
