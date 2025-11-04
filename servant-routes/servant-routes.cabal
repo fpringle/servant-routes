@@ -126,3 +126,4 @@ test-suite servant-routes-test
     , servant-routes
     , hspec >= 2.9 && < 2.12
     , QuickCheck >= 2.14 && < 2.15
+    , bytestring >= 0.11 && < 0.13

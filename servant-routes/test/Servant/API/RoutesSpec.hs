@@ -5,14 +5,19 @@ module Servant.API.RoutesSpec
   )
 where
 
+import Data.ByteString
 import Data.Function
 import qualified Data.Set as Set
 import qualified Data.Text as T
 import GHC.Generics
 import Lens.Micro
 import Servant.API
+#if MIN_VERSION_servant(0,20,3)
+import Servant.API.MultiVerb
+#endif
 import Servant.API.Routes
 import Servant.API.Routes.Internal.Response
+import Servant.API.Routes.Response
 import Servant.API.Routes.Route
 import Servant.API.Routes.RouteSpec ()
 import Test.Hspec as H
@@ -248,7 +253,34 @@ spec = do
         getRoutes @(CaptureAll "cap" Int :> SubAPI) `shouldMatchList` addC <$> getRoutes @SubAPI
         getRoutes @(CaptureAll "cap" Int :> SubAPI2) `shouldMatchList` addC <$> getRoutes @SubAPI2
         getRoutes @(CaptureAll "cap" Int :> SubAPI3) `shouldMatchList` addC <$> getRoutes @SubAPI3
+
+    describe "others" $ do
 #if MIN_VERSION_servant(0,19,0)
       it "NamedRoutes" $
         getRoutes @(NamedRoutes API) `shouldMatchList` getRoutes @SubAPI <> getRoutes @SubAPI2 <> getRoutes @SubAPI3
+#endif
+#if MIN_VERSION_servant(0,20,3)
+      describe "MultiVerb" $ do
+        it "Empty union" $
+          getRoutes @(MultiVerb 'POST '[JSON] '[] (Union '[]))
+            `shouldMatchList` [ defRoute "POST"
+                              ]
+        it "Single-element union: Respond" $
+          getRoutes @(MultiVerb 'POST '[JSON] '[Respond 200 "hello" Int] Int)
+            `shouldMatchList` [ defRoute "POST"
+                                  & routeResponse .~ (intResponse & responses . responseDescription ?~ "hello")
+                              ]
+        it "Single-element union: RespondAs" $
+          getRoutes @(MultiVerb 'POST '[JSON] '[RespondAs '[JSON] 200 "int" Int] Int)
+            `shouldMatchList` [ defRoute "POST"
+                                  & routeResponse
+                                    .~ (intResponse & responses . responseDescription ?~ "int")
+                              ]
+        it "Multi-element union" $
+          getRoutes @(MultiVerb 'POST '[JSON] '[RespondAs '[JSON] 200 "int" Int, RespondStreaming 200 "string-streaming" () String] (Union '[Int, SourceIO ByteString]))
+            `shouldMatchList` [ defRoute "POST"
+                                  & routeResponse
+                                    .~ (intResponse & responses . responseDescription ?~ "int")
+                                      <> (strResponse & responses . responseDescription ?~ "string-streaming")
+                              ]
 #endif
