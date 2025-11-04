@@ -26,7 +26,7 @@ instance Q.Arbitrary Responses where
 
 instance Q.Arbitrary Response where
   arbitrary = do
-    _responseType <- Q.elements [intTypeRep, strTypeRep, unitTypeRep]
+    _responseType <- Q.elements [intSomeTypeRep, strSomeTypeRep, unitSomeTypeRep]
     _responseHeaders <- Set.fromList <$> Q.sublistOf sampleReps
     _responseDescription <- Q.liftArbitrary genDescription
     pure Response {..}
