@@ -10,6 +10,7 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 ### Added
 
 - `HasRoutes` support for `MultiVerb`. [#44](https://github.com/fpringle/servant-routes/pull/44), [#45](https://github.com/fpringle/servant-routes/pull/45)
+- Support for the `Host` combinator. [#46](https://github.com/fpringle/servant-routes/pull/46)
 
 ### Changed
 
