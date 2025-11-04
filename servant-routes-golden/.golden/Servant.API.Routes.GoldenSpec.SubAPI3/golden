@@ -2,7 +2,6 @@
     "/x2/y1": {
         "PUT": {
             "auths": [],
-            "description": "desc",
             "method": "PUT",
             "params": [],
             "path": "/x2/y1",
@@ -14,6 +13,7 @@
                 }
             ],
             "response": {
+                "description": "desc",
                 "headers": [],
                 "type": "[Char]"
             },
@@ -23,7 +23,6 @@
     "/x2/z1": {
         "GET": {
             "auths": [],
-            "description": null,
             "method": "GET",
             "params": [],
             "path": "/x2/z1",
@@ -39,6 +38,7 @@
                 }
             ],
             "response": {
+                "description": null,
                 "headers": [],
                 "type": "[Integer]"
             },

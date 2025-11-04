@@ -2,7 +2,6 @@
     "/x": {
         "POST": {
             "auths": [],
-            "description": null,
             "method": "POST",
             "params": [],
             "path": "/x",
@@ -14,6 +13,7 @@
                 }
             ],
             "response": {
+                "description": null,
                 "headers": [],
                 "type": "Int"
             },
@@ -23,7 +23,6 @@
     "/x/y": {
         "PUT": {
             "auths": [],
-            "description": null,
             "method": "PUT",
             "params": [],
             "path": "/x/y",
@@ -35,6 +34,7 @@
                 }
             ],
             "response": {
+                "description": null,
                 "headers": [],
                 "type": "[Char]"
             },

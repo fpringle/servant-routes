@@ -93,6 +93,7 @@ library
     Servant.API.Routes.Internal.Response
     Servant.API.Routes.Internal.Route
     Servant.API.Routes.Internal.Auth
+    Servant.API.Routes.Internal.Description
   other-modules:
     Servant.API.Routes.Utils
   -- other-extensions:

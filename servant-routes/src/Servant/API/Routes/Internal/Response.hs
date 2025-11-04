@@ -15,6 +15,7 @@ module Servant.API.Routes.Internal.Response
   , Response (..)
   , responseType
   , responseHeaders
+  , responseDescription
   , HasResponse (..)
   , AllHasResponse (..)
   )
@@ -29,6 +30,7 @@ import Data.Typeable
 import Lens.Micro
 import Lens.Micro.TH
 import Servant.API hiding (getResponse)
+import "this" Servant.API.Routes.Internal.Description
 import "this" Servant.API.Routes.Internal.Header
 import "this" Servant.API.Routes.Internal.Some as S
 import "this" Servant.API.Routes.Utils
@@ -43,6 +45,7 @@ response 'Servant.API.Header.Header's, so we do the same here.
 data Response = Response
   { _responseType :: TypeRep
   , _responseHeaders :: Set.Set HeaderRep
+  , _responseDescription :: Maybe ResponseDescription
   }
   deriving (Show, Eq, Ord)
 
@@ -53,18 +56,20 @@ instance ToJSON Response where
     object
       [ "type" .= typeRepToJSON _responseType
       , "headers" .= _responseHeaders
+      , "description" .= _responseDescription
       ]
 
 {- | Get a term-level response from a type-level argument. This encodes the argument(s)
 of a 'Verb' or 'UVerb'.
 
-Similar to 'Typeable', but also get the response 'Servant.API.Header.Header's.
+Similar to 'Typeable', but also get the response 'Servant.API.Header.Header's and
+the 'ResponseDescription'.
 -}
 class HasResponse a where
   getResponse :: Response
 
 instance {-# OVERLAPPABLE #-} (Typeable a) => HasResponse a where
-  getResponse = Response (typeRepOf @a) mempty
+  getResponse = Response (typeRepOf @a) mempty Nothing
 
 instance {-# OVERLAPPING #-} (HasResponse a, GetHeaderReps hs) => HasResponse (Headers hs a) where
   getResponse =

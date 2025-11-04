@@ -29,7 +29,7 @@ module Servant.API.Routes.Route
   , add
 
     -- * Auxiliary types
-  , RouteDescription (..)
+  , ResponseDescription (..)
   , RouteSummary (..)
   )
 where
@@ -58,7 +58,6 @@ defRoute method =
     , _routeRequestBody = noRequest
     , _routeResponse = noResponse
     , _routeAuths = mempty
-    , _routeDescription = Nothing
     , _routeSummary = Nothing
     }
 
@@ -93,3 +92,9 @@ renderRoute Route {..} =
 
 add :: (Ord a) => ASetter s t (Set.Set a) (Set.Set a) -> a -> s -> t
 add setter = over setter . Set.insert
+
+{- | Traverse over all the (optional) `_responseDescription` fields of all the
+possible responses to a route.
+-}
+routeDescription :: Traversal' Route (Maybe ResponseDescription)
+routeDescription = routeResponse . responses . responseDescription
