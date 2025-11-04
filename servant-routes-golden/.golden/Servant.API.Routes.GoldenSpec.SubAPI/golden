@@ -2,6 +2,7 @@
     "/": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/",
