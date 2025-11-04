@@ -2,13 +2,13 @@
     "/sub1": {
         "POST": {
             "auths": [],
-            "description": null,
             "method": "POST",
             "params": [],
             "path": "/sub1",
             "request_body": "[Char]",
             "request_headers": [],
             "response": {
+                "description": null,
                 "headers": [],
                 "type": "Int"
             },
@@ -18,7 +18,6 @@
     "/sub2/x": {
         "POST": {
             "auths": [],
-            "description": null,
             "method": "POST",
             "params": [],
             "path": "/sub2/x",
@@ -30,6 +29,7 @@
                 }
             ],
             "response": {
+                "description": null,
                 "headers": [],
                 "type": "Int"
             },
@@ -39,7 +39,6 @@
     "/sub2/x/y": {
         "PUT": {
             "auths": [],
-            "description": null,
             "method": "PUT",
             "params": [],
             "path": "/sub2/x/y",
@@ -51,6 +50,7 @@
                 }
             ],
             "response": {
+                "description": null,
                 "headers": [],
                 "type": "[Char]"
             },
@@ -60,7 +60,6 @@
     "/sub3/x2/y1": {
         "PUT": {
             "auths": [],
-            "description": "desc",
             "method": "PUT",
             "params": [],
             "path": "/sub3/x2/y1",
@@ -72,6 +71,7 @@
                 }
             ],
             "response": {
+                "description": "desc",
                 "headers": [],
                 "type": "[Char]"
             },
@@ -81,7 +81,6 @@
     "/sub3/x2/z1": {
         "GET": {
             "auths": [],
-            "description": null,
             "method": "GET",
             "params": [],
             "path": "/sub3/x2/z1",
@@ -97,6 +96,7 @@
                 }
             ],
             "response": {
+                "description": null,
                 "headers": [],
                 "type": "[Integer]"
             },
