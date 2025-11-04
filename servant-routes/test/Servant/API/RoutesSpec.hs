@@ -16,6 +16,7 @@ import Servant.API
 import Servant.API.MultiVerb
 #endif
 import Servant.API.Routes
+import Servant.API.Routes.Internal.Header
 import Servant.API.Routes.Internal.Response
 import Servant.API.Routes.Response
 import Servant.API.Routes.Route
@@ -290,27 +291,27 @@ spec = do
                                       (intResponse & responses . responseHeaders .~ mempty)
                               ]
         it "WithHeaders - headers" $
-          getRoutes @(MultiVerb 'POST '[JSON] '[WithHeaders '[DescHeader "h1" _ [Int], OptHeader (DescHeader "h2" _ Char)] Int Int] Int)
+          getRoutes @(MultiVerb 'POST '[JSON] '[WithHeaders '[DescHeader "h1" "h1 - Int" [Int], OptHeader (DescHeader "h2" "h2 - Char" Char)] Int Int] Int)
             `shouldMatchList` [ defRoute "POST"
                                   & routeResponse
                                     .~ ( intResponse
                                           & responses . responseHeaders
                                             .~ Set.fromList
-                                              [ mkHeaderRep @"h1" @[Int]
-                                              , mkHeaderRep @"h2" @(Maybe Char)
+                                              [ (mkHeaderRep @"h1" @[Int]) {_hDescription = Just "h1 - Int"}
+                                              , (mkHeaderRep @"h2" @(Maybe Char)) {_hDescription = Just "h2 - Char"}
                                               ]
                                        )
                               ]
 
         it "WithHeaders - nested OptHeader" $
-          getRoutes @(MultiVerb 'POST '[JSON] '[WithHeaders '[OptHeader (DescHeader "h1" _ Char), OptHeader (OptHeader (DescHeader "h2" _ Char))] Int Int] Int)
+          getRoutes @(MultiVerb 'POST '[JSON] '[WithHeaders '[OptHeader (DescHeader "h1" "h1 - Int" Char), OptHeader (OptHeader (DescHeader "h2" "nested" Char))] Int Int] Int)
             `shouldMatchList` [ defRoute "POST"
                                   & routeResponse
                                     .~ ( intResponse
                                           & responses . responseHeaders
                                             .~ Set.fromList
-                                              [ mkHeaderRep @"h1" @(Maybe Char)
-                                              , mkHeaderRep @"h2" @(Maybe Char)
+                                              [ (mkHeaderRep @"h1" @(Maybe Char)) {_hDescription = Just "h1 - Int"}
+                                              , (mkHeaderRep @"h2" @(Maybe Char)) {_hDescription = Just "nested"}
                                               ]
                                        )
                               ]
