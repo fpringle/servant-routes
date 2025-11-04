@@ -108,12 +108,17 @@ instance
   getHeaderRep = mkHeaderRep @h @v
 
 #if MIN_VERSION_servant(0,20,3)
-instance (KnownSymbol name, Typeable v) =>
+instance
+  (KnownSymbol name, KnownSymbol desc, Typeable v) =>
   GetHeaderRep (DescHeader name desc v)
   where
-  getHeaderRep = mkHeaderRep @name @v
+  getHeaderRep =
+    (mkHeaderRep @name @v)
+      { _hDescription = Just (knownSymbolT @desc)
+      }
 
-instance (GetHeaderRep h) =>
+instance
+  (GetHeaderRep h) =>
   GetHeaderRep (OptHeader h)
   where
   getHeaderRep =
