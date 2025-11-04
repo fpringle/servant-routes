@@ -1,0 +1,71 @@
+{
+    "/multi1": {
+        "POST": {
+            "auths": [],
+            "method": "POST",
+            "params": [],
+            "path": "/multi1",
+            "request_body": null,
+            "request_headers": [],
+            "response": null,
+            "summary": null
+        }
+    },
+    "/multi2": {
+        "POST": {
+            "auths": [],
+            "method": "POST",
+            "params": [],
+            "path": "/multi2",
+            "request_body": null,
+            "request_headers": [],
+            "response": {
+                "description": "hello",
+                "headers": [],
+                "type": "Int"
+            },
+            "summary": null
+        }
+    },
+    "/multi3": {
+        "POST": {
+            "auths": [],
+            "method": "POST",
+            "params": [],
+            "path": "/multi3",
+            "request_body": null,
+            "request_headers": [],
+            "response": {
+                "description": "int",
+                "headers": [],
+                "type": "Int"
+            },
+            "summary": null
+        }
+    },
+    "/multi4": {
+        "POST": {
+            "auths": [],
+            "method": "POST",
+            "params": [],
+            "path": "/multi4",
+            "request_body": null,
+            "request_headers": [],
+            "response": {
+                "one_of": [
+                    {
+                        "description": "int",
+                        "headers": [],
+                        "type": "Int"
+                    },
+                    {
+                        "description": "string-streaming",
+                        "headers": [],
+                        "type": "[Char]"
+                    }
+                ]
+            },
+            "summary": null
+        }
+    }
+}
