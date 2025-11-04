@@ -8,6 +8,7 @@
             "request_body": "[Char]",
             "request_headers": [
                 {
+                    "description": null,
                     "name": "h1",
                     "type": "Maybe Text"
                 }
@@ -29,6 +30,7 @@
             "request_body": null,
             "request_headers": [
                 {
+                    "description": null,
                     "name": "h1",
                     "type": "Maybe Text"
                 }

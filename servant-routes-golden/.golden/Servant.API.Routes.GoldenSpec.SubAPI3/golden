@@ -8,6 +8,7 @@
             "request_body": null,
             "request_headers": [
                 {
+                    "description": null,
                     "name": "h2",
                     "type": "Maybe Text"
                 }
@@ -29,10 +30,12 @@
             "request_body": null,
             "request_headers": [
                 {
+                    "description": null,
                     "name": "h2",
                     "type": "Maybe Text"
                 },
                 {
+                    "description": null,
                     "name": "h3",
                     "type": "Maybe Int"
                 }

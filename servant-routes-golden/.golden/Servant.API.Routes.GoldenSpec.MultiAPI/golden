@@ -96,10 +96,12 @@
                 "description": null,
                 "headers": [
                     {
+                        "description": "",
                         "name": "h1",
                         "type": "[Int]"
                     },
                     {
+                        "description": "",
                         "name": "h2",
                         "type": "Maybe Char"
                     }
@@ -121,10 +123,12 @@
                 "description": null,
                 "headers": [
                     {
+                        "description": "",
                         "name": "h1",
                         "type": "Maybe Char"
                     },
                     {
+                        "description": "",
                         "name": "h2",
                         "type": "Maybe Char"
                     }
