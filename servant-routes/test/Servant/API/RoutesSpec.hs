@@ -283,4 +283,35 @@ spec = do
                                     .~ (intResponse & responses . responseDescription ?~ "int")
                                       <> (strResponse & responses . responseDescription ?~ "string-streaming")
                               ]
+        it "WithHeaders - no headers" $
+          getRoutes @(MultiVerb 'POST '[JSON] '[WithHeaders '[] Int Int] Int)
+            `shouldMatchList` [ defRoute "POST"
+                                  & routeResponse .~
+                                      (intResponse & responses . responseHeaders .~ mempty)
+                              ]
+        it "WithHeaders - headers" $
+          getRoutes @(MultiVerb 'POST '[JSON] '[WithHeaders '[DescHeader "h1" _ [Int], OptHeader (DescHeader "h2" _ Char)] Int Int] Int)
+            `shouldMatchList` [ defRoute "POST"
+                                  & routeResponse
+                                    .~ ( intResponse
+                                          & responses . responseHeaders
+                                            .~ Set.fromList
+                                              [ mkHeaderRep @"h1" @[Int]
+                                              , mkHeaderRep @"h2" @(Maybe Char)
+                                              ]
+                                       )
+                              ]
+
+        it "WithHeaders - nested OptHeader" $
+          getRoutes @(MultiVerb 'POST '[JSON] '[WithHeaders '[OptHeader (DescHeader "h1" _ Char), OptHeader (OptHeader (DescHeader "h2" _ Char))] Int Int] Int)
+            `shouldMatchList` [ defRoute "POST"
+                                  & routeResponse
+                                    .~ ( intResponse
+                                          & responses . responseHeaders
+                                            .~ Set.fromList
+                                              [ mkHeaderRep @"h1" @(Maybe Char)
+                                              , mkHeaderRep @"h2" @(Maybe Char)
+                                              ]
+                                       )
+                              ]
 #endif

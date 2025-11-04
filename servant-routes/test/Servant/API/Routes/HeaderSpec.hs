@@ -16,6 +16,13 @@ spec = do
     it "should work" $ do
       mkHeaderRep @"sym" @Int `shouldBe` HeaderRep "sym" intTypeRep
 
+  describe "mkHeaderRepOptional" $ do
+    it "should work" $ do
+      mkHeaderRepOptional (mkHeaderRep @"sym" @Int) `shouldBe` mkHeaderRep @"sym" @(Maybe Int)
+    it "should be idempotent" $
+      let h = mkHeaderRepOptional (mkHeaderRep @"sym" @Int)
+      in  mkHeaderRepOptional h `shouldBe` h
+
   describe "GetheaderReps" $ do
     it "should return an empty list for an empty type-level list" $
       getHeaderReps @'[] `shouldBe` []
