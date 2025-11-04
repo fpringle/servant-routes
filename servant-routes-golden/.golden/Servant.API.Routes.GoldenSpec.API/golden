@@ -2,6 +2,7 @@
     "/sub1": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/sub1",
@@ -18,6 +19,7 @@
     "/sub2/x": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/sub2/x",
@@ -40,6 +42,7 @@
     "/sub2/x/y": {
         "PUT": {
             "auths": [],
+            "host": null,
             "method": "PUT",
             "params": [],
             "path": "/sub2/x/y",
@@ -62,6 +65,7 @@
     "/sub3/x2/y1": {
         "PUT": {
             "auths": [],
+            "host": null,
             "method": "PUT",
             "params": [],
             "path": "/sub3/x2/y1",
@@ -84,6 +88,7 @@
     "/sub3/x2/z1": {
         "GET": {
             "auths": [],
+            "host": null,
             "method": "GET",
             "params": [],
             "path": "/sub3/x2/z1",

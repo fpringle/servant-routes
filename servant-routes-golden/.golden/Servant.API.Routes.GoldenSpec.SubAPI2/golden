@@ -2,6 +2,7 @@
     "/x": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/x",
@@ -24,6 +25,7 @@
     "/x/y": {
         "PUT": {
             "auths": [],
+            "host": null,
             "method": "PUT",
             "params": [],
             "path": "/x/y",

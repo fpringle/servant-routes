@@ -2,6 +2,7 @@
     "/multi1": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/multi1",
@@ -14,6 +15,7 @@
     "/multi2": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/multi2",
@@ -30,6 +32,7 @@
     "/multi3": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/multi3",
@@ -46,6 +49,7 @@
     "/multi4": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/multi4",
@@ -71,6 +75,7 @@
     "/multi5": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/multi5",
@@ -87,6 +92,7 @@
     "/multi6": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/multi6",
@@ -114,6 +120,7 @@
     "/multi7": {
         "POST": {
             "auths": [],
+            "host": null,
             "method": "POST",
             "params": [],
             "path": "/multi7",
