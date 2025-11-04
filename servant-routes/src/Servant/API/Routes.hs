@@ -571,4 +571,7 @@ instance
     where
       method = reflectMethod $ Proxy @method
       response = oneOfResponses @responses
+
+instance (HasRoutes api, KnownSymbol host) => HasRoutes (Host host :> api) where
+  getRoutes = getRoutes @api <&> routeHost %~ (<|> Just (RouteHost (knownSymbolT @host)))
 #endif
