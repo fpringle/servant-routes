@@ -14,7 +14,7 @@ strTypeRep = typeRep $ Proxy @String
 unitTypeRep :: TypeRep
 unitTypeRep = typeRep $ Proxy @()
 
-{- HLINT ignore "Use /= -}
+{- HLINT ignore "Use /=" -}
 
 testEqInstances :: forall a. (Q.Arbitrary a, Show a, Eq a) => H.Spec
 testEqInstances =
