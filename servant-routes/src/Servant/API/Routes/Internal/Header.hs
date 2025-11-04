@@ -12,6 +12,7 @@ module Servant.API.Routes.Internal.Header
   ( HeaderRep (..)
   , mkHeaderRep
   , GetHeaderReps (..)
+  , GetHeaderRep (..)
   )
 where
 
@@ -53,6 +54,15 @@ instance ToJSON HeaderRep where
       , "type" .= typeRepToJSON _hType
       ]
 
+class GetHeaderRep h where
+  getHeaderRep :: HeaderRep
+
+instance
+  (KnownSymbol h, Typeable v) =>
+  GetHeaderRep (Header h v)
+  where
+  getHeaderRep = mkHeaderRep @h @v
+
 {- | Utility class to let us get a value-level list of 'HeaderRep's from a
 type-level list of 'Servant.API.Header.Header's. See the implementation of
 @'Servant.API.Route.HasRoutes' ('Verb' method status ctypes ('Headers' hs a))@ for an example.
@@ -64,9 +74,7 @@ instance GetHeaderReps '[] where
   getHeaderReps = []
 
 instance
-  (GetHeaderReps rest, KnownSymbol h, Typeable v) =>
-  GetHeaderReps (Header h v ': rest)
+  (GetHeaderReps rest, GetHeaderRep h) =>
+  GetHeaderReps (h ': rest)
   where
-  getHeaderReps = header : getHeaderReps @rest
-    where
-      header = mkHeaderRep @h @v
+  getHeaderReps = getHeaderRep @h : getHeaderReps @rest

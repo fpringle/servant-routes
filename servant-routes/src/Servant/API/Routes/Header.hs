@@ -9,6 +9,7 @@ Simple representation of HTTP headers.
 module Servant.API.Routes.Header
   ( HeaderRep
   , GetHeaderReps (..)
+  , GetHeaderRep (..)
   , mkHeaderRep
   )
 where
