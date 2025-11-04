@@ -13,6 +13,7 @@ module Servant.API.Routes.Internal.Route
     Route (..)
   , ResponseDescription (..)
   , RouteSummary (..)
+  , RouteHost (..)
 
     -- * Optics #optics#
   , routeMethod
@@ -23,6 +24,7 @@ module Servant.API.Routes.Internal.Route
   , routeResponse
   , routeAuths
   , routeSummary
+  , routeHost
   )
 where
 
@@ -49,6 +51,14 @@ newtype RouteSummary = RouteSummary {unSummary :: T.Text}
   deriving (Show)
   deriving (Eq, IsString, Ord, Semigroup, Monoid, ToJSON, FromJSON) via T.Text
 
+{- | Expected host of a route. This will correspond to the Servant @Host@ combinator
+(for `servant>=0.20.3`).
+The behaviour described for 'ResponseDescription' is the same for 'RouteHost'.
+-}
+newtype RouteHost = RouteHost {unHost :: T.Text}
+  deriving (Show)
+  deriving (Eq, IsString, Ord, Semigroup, Monoid, ToJSON, FromJSON) via T.Text
+
 -- | A simple representation of a single endpoint of an API.
 data Route = Route
   { _routeMethod :: Method
@@ -59,6 +69,7 @@ data Route = Route
   , _routeResponse :: Responses
   , _routeAuths :: Set.Set Auth
   , _routeSummary :: Maybe RouteSummary
+  , _routeHost :: Maybe RouteHost
   }
   deriving (Show, Eq)
 
@@ -78,4 +89,5 @@ instance ToJSON Route where
       , "response" .= _routeResponse
       , "auths" .= _routeAuths
       , "summary" .= _routeSummary
+      , "host" .= _routeHost
       ]
