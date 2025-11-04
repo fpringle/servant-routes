@@ -104,6 +104,11 @@ instance {-# OVERLAPPING #-} (HasResponse a, KnownSymbol desc) => HasResponse (R
       & responseDescription ?~ description
     where
       description = ResponseDescription (knownSymbolT @desc)
+
+instance {-# OVERLAPPING #-} (HasResponse a, GetHeaderReps headers) => HasResponse (WithHeaders headers returnType a) where
+  getResponse =
+    getResponse @a
+      & responseHeaders <>~ Set.fromList (getHeaderReps @headers)
 #endif
 
 {- | Witness that all members of a type-level list are instances of 'HasResponse'.

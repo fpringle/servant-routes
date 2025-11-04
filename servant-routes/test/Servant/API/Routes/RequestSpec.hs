@@ -15,7 +15,7 @@ import "this" Servant.API.Routes.SomeSpec hiding (spec)
 {- hlint ignore "Use fold" -}
 
 instance Q.Arbitrary Request where
-  arbitrary = Request <$> genSome (Q.elements [intTypeRep, strTypeRep, unitTypeRep])
+  arbitrary = Request <$> genSome (Q.elements [intSomeTypeRep, strSomeTypeRep, unitSomeTypeRep])
   shrink = unRequest (shrinkSome (const []))
 
 spec :: Spec
@@ -30,6 +30,6 @@ spec = do
     prop "Concatentation" $ do
       \(xs :: [Request]) -> mconcat xs === foldr (<>) mempty xs
   it "AllTypeable" $ do
-    typeReps @'[Int, String] `shouldMatchList` [intTypeRep, strTypeRep]
+    typeReps @'[Int, String] `shouldMatchList` [intSomeTypeRep, strSomeTypeRep]
   describe "Hand-rolled instances" $ do
     testEqInstances @Request

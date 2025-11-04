@@ -4,17 +4,27 @@ import Data.Typeable
 import qualified Test.Hspec as H
 import qualified Test.Hspec.QuickCheck as H
 import qualified Test.QuickCheck as Q
+import qualified Type.Reflection as R
 
-intTypeRep :: TypeRep
-intTypeRep = typeRep $ Proxy @Int
+intTypeRep :: R.TypeRep Int
+intTypeRep = R.typeRep @Int
 
-strTypeRep :: TypeRep
-strTypeRep = typeRep $ Proxy @String
+intSomeTypeRep :: TypeRep
+intSomeTypeRep = typeRep $ Proxy @Int
 
-unitTypeRep :: TypeRep
-unitTypeRep = typeRep $ Proxy @()
+strTypeRep :: R.TypeRep String
+strTypeRep = R.typeRep @String
 
-{- HLINT ignore "Use /= -}
+strSomeTypeRep :: TypeRep
+strSomeTypeRep = typeRep $ Proxy @String
+
+unitTypeRep :: R.TypeRep ()
+unitTypeRep = R.typeRep @()
+
+unitSomeTypeRep :: TypeRep
+unitSomeTypeRep = typeRep $ Proxy @()
+
+{- HLINT ignore "Use /=" -}
 
 testEqInstances :: forall a. (Q.Arbitrary a, Show a, Eq a) => H.Spec
 testEqInstances =

@@ -1,3 +1,6 @@
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_HADDOCK not-home #-}
 
 {- |
@@ -11,16 +14,21 @@ Internal module, subject to change.
 module Servant.API.Routes.Internal.Header
   ( HeaderRep (..)
   , mkHeaderRep
+  , mkHeaderRepOptional
   , GetHeaderReps (..)
+  , GetHeaderRep (..)
   )
 where
 
 import Data.Aeson
 import Data.Kind (Type)
 import Data.Text
-import Data.Typeable
 import GHC.TypeLits
 import Servant.API
+#if MIN_VERSION_servant(0,20,3)
+import Servant.API.MultiVerb
+#endif
+import Type.Reflection
 import "this" Servant.API.Routes.Utils
 
 -- | Convenience function to construct a 'HeaderRep' from @sym :: 'Symbol'@ and @a :: Type'@.
@@ -31,8 +39,31 @@ mkHeaderRep ::
 mkHeaderRep =
   HeaderRep
     { _hName = knownSymbolT @sym
-    , _hType = typeRepOf @a
+    , _hDescription = Nothing
+    , _hType = typeRep @a
     }
+
+{- | Make the 'TypeRep' in the '_hType' field optional (using 'Maybe'). If the field is already
+optional, leave it as is.
+
+For example:
+
+@
+ghci> mkHeaderRep @"sym" @Int
+HeaderRep {_hName = "sym", _hType = Int}
+
+ghci> mkHeaderRepOptional $ mkHeaderRep @"sym" @Int
+HeaderRep {_hName = "sym", _hType = Maybe Int}
+
+ghci> mkHeaderRepOptional . mkHeaderRepOptional $ mkHeaderRep @"sym" @Int
+HeaderRep {_hName = "sym", _hType = Maybe Int}
+@
+-}
+mkHeaderRepOptional :: HeaderRep -> HeaderRep
+mkHeaderRepOptional h@(HeaderRep {_hType = App (Con tc) _})
+  | tc == typeRepTyCon (typeRep @Maybe) = h
+mkHeaderRepOptional (HeaderRep name desc (r :: TypeRep a)) =
+  HeaderRep name desc $ App (typeRep @Maybe) r
 
 {- | Simple term-level representation of a 'Servant.API.Header.Header'.
 
@@ -40,18 +71,60 @@ A type-level @'Servant.API.Header.Header' (sym :: 'GHC.TypeLits.Symbol') typ@ sh
 @'HeaderRep' { _hName = str, _hType =  typRep }@, where @str@ is the term-level equivalent
 of @sym@ and @typRep@ is the term-level representation of @typ@.
 -}
-data HeaderRep = HeaderRep
-  { _hName :: Text
-  , _hType :: TypeRep
-  }
-  deriving (Show, Eq, Ord)
+data HeaderRep where
+  HeaderRep ::
+    forall (a :: Type).
+    { _hName :: Text
+    , _hDescription :: Maybe Text
+    , _hType :: TypeRep a
+    } ->
+    HeaderRep
+
+deriving instance Show HeaderRep
+
+instance Eq HeaderRep where
+  HeaderRep n1 d1 t1 == HeaderRep n2 d2 t2 =
+    n1 == n2 && d1 == d2 && (SomeTypeRep t1 == SomeTypeRep t2)
+
+instance Ord HeaderRep where
+  HeaderRep n1 d1 t1 `compare` HeaderRep n2 d2 t2 =
+    n1 `compare` n2 <> d1 `compare` d2 <> (SomeTypeRep t1 `compare` SomeTypeRep t2)
 
 instance ToJSON HeaderRep where
   toJSON HeaderRep {..} =
     object
       [ "name" .= _hName
-      , "type" .= typeRepToJSON _hType
+      , "description" .= _hDescription
+      , "type" .= typeRepToJSON (SomeTypeRep _hType)
       ]
+
+class GetHeaderRep h where
+  getHeaderRep :: HeaderRep
+
+instance
+  (KnownSymbol h, Typeable v) =>
+  GetHeaderRep (Header h v)
+  where
+  getHeaderRep = mkHeaderRep @h @v
+
+#if MIN_VERSION_servant(0,20,3)
+instance
+  (KnownSymbol name, KnownSymbol desc, Typeable v) =>
+  GetHeaderRep (DescHeader name desc v)
+  where
+  getHeaderRep =
+    (mkHeaderRep @name @v)
+      { _hDescription = Just (knownSymbolT @desc)
+      }
+
+instance
+  (GetHeaderRep h) =>
+  GetHeaderRep (OptHeader h)
+  where
+  getHeaderRep =
+    let hRep = getHeaderRep @h
+    in  mkHeaderRepOptional hRep
+#endif
 
 {- | Utility class to let us get a value-level list of 'HeaderRep's from a
 type-level list of 'Servant.API.Header.Header's. See the implementation of
@@ -64,9 +137,7 @@ instance GetHeaderReps '[] where
   getHeaderReps = []
 
 instance
-  (GetHeaderReps rest, KnownSymbol h, Typeable v) =>
-  GetHeaderReps (Header h v ': rest)
+  (GetHeaderReps rest, GetHeaderRep h) =>
+  GetHeaderReps (h ': rest)
   where
-  getHeaderReps = header : getHeaderReps @rest
-    where
-      header = mkHeaderRep @h @v
+  getHeaderReps = getHeaderRep @h : getHeaderReps @rest

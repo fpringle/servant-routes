@@ -67,5 +67,75 @@
             },
             "summary": null
         }
+    },
+    "/multi5": {
+        "POST": {
+            "auths": [],
+            "method": "POST",
+            "params": [],
+            "path": "/multi5",
+            "request_body": null,
+            "request_headers": [],
+            "response": {
+                "description": null,
+                "headers": [],
+                "type": "Int"
+            },
+            "summary": null
+        }
+    },
+    "/multi6": {
+        "POST": {
+            "auths": [],
+            "method": "POST",
+            "params": [],
+            "path": "/multi6",
+            "request_body": null,
+            "request_headers": [],
+            "response": {
+                "description": null,
+                "headers": [
+                    {
+                        "description": "",
+                        "name": "h1",
+                        "type": "[Int]"
+                    },
+                    {
+                        "description": "",
+                        "name": "h2",
+                        "type": "Maybe Char"
+                    }
+                ],
+                "type": "Int"
+            },
+            "summary": null
+        }
+    },
+    "/multi7": {
+        "POST": {
+            "auths": [],
+            "method": "POST",
+            "params": [],
+            "path": "/multi7",
+            "request_body": null,
+            "request_headers": [],
+            "response": {
+                "description": null,
+                "headers": [
+                    {
+                        "description": "",
+                        "name": "h1",
+                        "type": "Maybe Char"
+                    },
+                    {
+                        "description": "",
+                        "name": "h2",
+                        "type": "Maybe Char"
+                    }
+                ],
+                "type": "Int"
+            },
+            "summary": null
+        }
     }
 }
