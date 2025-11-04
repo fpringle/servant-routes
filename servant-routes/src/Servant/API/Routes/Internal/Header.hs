@@ -1,3 +1,5 @@
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_HADDOCK not-home #-}
 
 {- |
@@ -19,9 +21,9 @@ where
 import Data.Aeson
 import Data.Kind (Type)
 import Data.Text
-import Data.Typeable
 import GHC.TypeLits
 import Servant.API
+import Type.Reflection
 import "this" Servant.API.Routes.Utils
 
 -- | Convenience function to construct a 'HeaderRep' from @sym :: 'Symbol'@ and @a :: Type'@.
@@ -32,7 +34,7 @@ mkHeaderRep ::
 mkHeaderRep =
   HeaderRep
     { _hName = knownSymbolT @sym
-    , _hType = typeRepOf @a
+    , _hType = typeRep @a
     }
 
 {- | Simple term-level representation of a 'Servant.API.Header.Header'.
@@ -41,17 +43,29 @@ A type-level @'Servant.API.Header.Header' (sym :: 'GHC.TypeLits.Symbol') typ@ sh
 @'HeaderRep' { _hName = str, _hType =  typRep }@, where @str@ is the term-level equivalent
 of @sym@ and @typRep@ is the term-level representation of @typ@.
 -}
-data HeaderRep = HeaderRep
-  { _hName :: Text
-  , _hType :: TypeRep
-  }
-  deriving (Show, Eq, Ord)
+data HeaderRep where
+  HeaderRep ::
+    forall (a :: Type).
+    { _hName :: Text
+    , _hType :: TypeRep a
+    } ->
+    HeaderRep
+
+deriving instance Show HeaderRep
+
+instance Eq HeaderRep where
+  HeaderRep n1 t1 == HeaderRep n2 t2 =
+    n1 == n2 && (SomeTypeRep t1 == SomeTypeRep t2)
+
+instance Ord HeaderRep where
+  HeaderRep n1 t1 `compare` HeaderRep n2 t2 =
+    n1 `compare` n2 <> (SomeTypeRep t1 `compare` SomeTypeRep t2)
 
 instance ToJSON HeaderRep where
   toJSON HeaderRep {..} =
     object
       [ "name" .= _hName
-      , "type" .= typeRepToJSON _hType
+      , "type" .= typeRepToJSON (SomeTypeRep _hType)
       ]
 
 class GetHeaderRep h where
