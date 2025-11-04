@@ -39,9 +39,39 @@ data API mode = API
 data MultiAPI mode = MultiAPI
   { multi1 :: mode :- "multi1" :> MultiVerb 'POST '[JSON] '[] (Union '[])
   , multi2 :: mode :- "multi2" :> MultiVerb 'POST '[JSON] '[Respond 200 "hello" Int] Int
-  , multi3 :: mode :- "multi3" :> MultiVerb 'POST '[JSON] '[RespondAs '[JSON] 200 "int" Int] Int
-  , multi4 :: mode :- "multi4" :> MultiVerb 'POST '[JSON] '[RespondAs '[JSON] 200 "int" Int, RespondStreaming 200 "string-streaming" () String] (Union '[Int, SourceIO ByteString])
-  } deriving Generic
+  , multi3 ::
+      mode :- "multi3" :> MultiVerb 'POST '[JSON] '[RespondAs '[JSON] 200 "int" Int] Int
+  , multi4 ::
+      mode
+        :- "multi4"
+          :> MultiVerb
+              'POST
+              '[JSON]
+              '[ RespondAs '[JSON] 200 "int" Int
+               , RespondStreaming 200 "string-streaming" () String
+               ]
+              (Union '[Int, SourceIO ByteString])
+  , multi5 :: mode :- "multi5" :> MultiVerb 'POST '[JSON] '[WithHeaders '[] Int Int] Int
+  , multi6 ::
+      mode
+        :- "multi6"
+          :> MultiVerb
+              'POST
+              '[JSON]
+              '[ WithHeaders '[DescHeader "h1" "" [Int], OptHeader (DescHeader "h2" "" Char)] Int Int
+               ]
+              Int
+  , multi7 ::
+      mode
+        :- "multi7"
+          :> MultiVerb
+              'POST
+              '[JSON]
+              '[ WithHeaders '[OptHeader (DescHeader "h1" "" Char), OptHeader (OptHeader (DescHeader "h2" "" Char))] Int Int
+               ]
+              Int
+  }
+  deriving (Generic)
 #endif
 
 spec :: H.Spec
