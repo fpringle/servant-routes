@@ -7,6 +7,10 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 
 ## [Unreleased]
 
+### Changed
+
+- `RouteDescription` is now called `ResponseDescription` and has moved from `Route` to `Response`. [#41](https://github.com/fpringle/servant-routes/pull/41)
+
 ## [0.1.1.0] - 10.06.2025
 
 ### Added
