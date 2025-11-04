@@ -13,6 +13,7 @@ Internal module, subject to change.
 module Servant.API.Routes.Internal.Header
   ( HeaderRep (..)
   , mkHeaderRep
+  , mkHeaderRepOptional
   , GetHeaderReps (..)
   , GetHeaderRep (..)
   )
@@ -36,6 +37,28 @@ mkHeaderRep =
     { _hName = knownSymbolT @sym
     , _hType = typeRep @a
     }
+
+{- | Make the 'TypeRep' in the '_hType' field optional (using 'Maybe'). If the field is already
+optional, leave it as is.
+
+For example:
+
+@
+ghci> mkHeaderRep @"sym" @Int
+HeaderRep {_hName = "sym", _hType = Int}
+
+ghci> mkHeaderRepOptional $ mkHeaderRep @"sym" @Int
+HeaderRep {_hName = "sym", _hType = Maybe Int}
+
+ghci> mkHeaderRepOptional . mkHeaderRepOptional $ mkHeaderRep @"sym" @Int
+HeaderRep {_hName = "sym", _hType = Maybe Int}
+@
+-}
+mkHeaderRepOptional :: HeaderRep -> HeaderRep
+mkHeaderRepOptional h@(HeaderRep _ (App (Con tc) _))
+  | tc == typeRepTyCon (typeRep @Maybe) = h
+mkHeaderRepOptional (HeaderRep name (r :: TypeRep a)) =
+  HeaderRep name $ App (typeRep @Maybe) r
 
 {- | Simple term-level representation of a 'Servant.API.Header.Header'.
 
