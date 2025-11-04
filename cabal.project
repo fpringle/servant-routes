@@ -3,3 +3,5 @@ tests: True
 packages:
   servant-routes/
   servant-routes-golden/
+
+multi-repl: True

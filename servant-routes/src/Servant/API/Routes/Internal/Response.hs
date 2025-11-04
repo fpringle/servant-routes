@@ -1,3 +1,6 @@
+{-# LANGUAGE CPP #-}
+-- see https://discourse.haskell.org/t/surprising-instance-resolution/13218
+{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_HADDOCK not-home #-}
 
@@ -27,9 +30,13 @@ import Data.Kind (Type)
 import Data.List (nub, sort)
 import qualified Data.Set as Set
 import Data.Typeable
+import GHC.TypeLits (KnownSymbol)
 import Lens.Micro
 import Lens.Micro.TH
 import Servant.API hiding (getResponse)
+#if MIN_VERSION_servant(0,20,3)
+import Servant.API.MultiVerb
+#endif
 import "this" Servant.API.Routes.Internal.Description
 import "this" Servant.API.Routes.Internal.Header
 import "this" Servant.API.Routes.Internal.Some as S
@@ -60,7 +67,7 @@ instance ToJSON Response where
       ]
 
 {- | Get a term-level response from a type-level argument. This encodes the argument(s)
-of a 'Verb' or 'UVerb'.
+of a 'Verb', 'UVerb' or 'MultiVerb'.
 
 Similar to 'Typeable', but also get the response 'Servant.API.Header.Header's and
 the 'ResponseDescription'.
@@ -75,6 +82,29 @@ instance {-# OVERLAPPING #-} (HasResponse a, GetHeaderReps hs) => HasResponse (H
   getResponse =
     getResponse @a
       & responseHeaders <>~ Set.fromList (getHeaderReps @hs)
+
+#if MIN_VERSION_servant(0,20,3)
+instance {-# OVERLAPPING #-} (HasResponse a, KnownSymbol desc) => HasResponse (Respond status desc a) where
+  getResponse =
+    getResponse @a
+      & responseDescription ?~ description
+    where
+      description = ResponseDescription (knownSymbolT @desc)
+
+instance {-# OVERLAPPING #-} (HasResponse a, KnownSymbol desc) => HasResponse (RespondAs cType status desc a) where
+  getResponse =
+    getResponse @a
+      & responseDescription ?~ description
+    where
+      description = ResponseDescription (knownSymbolT @desc)
+
+instance {-# OVERLAPPING #-} (HasResponse a, KnownSymbol desc) => HasResponse (RespondStreaming status desc framing a) where
+  getResponse =
+    getResponse @a
+      & responseDescription ?~ description
+    where
+      description = ResponseDescription (knownSymbolT @desc)
+#endif
 
 {- | Witness that all members of a type-level list are instances of 'HasResponse'.
 

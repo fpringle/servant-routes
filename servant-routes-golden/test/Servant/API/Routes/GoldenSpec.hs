@@ -6,9 +6,13 @@ module Servant.API.Routes.GoldenSpec
   )
 where
 
+import Data.ByteString
 import qualified Data.Text as T
 import GHC.Generics
 import Servant.API
+#if MIN_VERSION_servant(0,20,3)
+import Servant.API.MultiVerb
+#endif
 import Servant.API.Routes.Golden
 import Test.Hspec as H
 
@@ -31,6 +35,15 @@ data API mode = API
   } deriving Generic
 #endif
 
+#if MIN_VERSION_servant(0,20,3)
+data MultiAPI mode = MultiAPI
+  { multi1 :: mode :- "multi1" :> MultiVerb 'POST '[JSON] '[] (Union '[])
+  , multi2 :: mode :- "multi2" :> MultiVerb 'POST '[JSON] '[Respond 200 "hello" Int] Int
+  , multi3 :: mode :- "multi3" :> MultiVerb 'POST '[JSON] '[RespondAs '[JSON] 200 "int" Int] Int
+  , multi4 :: mode :- "multi4" :> MultiVerb 'POST '[JSON] '[RespondAs '[JSON] 200 "int" Int, RespondStreaming 200 "string-streaming" () String] (Union '[Int, SourceIO ByteString])
+  } deriving Generic
+#endif
+
 spec :: H.Spec
 spec = do
   it "SubAPI" $ goldenRoutes @SubAPI (show ''SubAPI)
@@ -38,4 +51,7 @@ spec = do
   it "SubAPI3" $ goldenRoutes @SubAPI3 (show ''SubAPI3)
 #if MIN_VERSION_servant(0,19,0)
   it "NamedRoutes API" $ goldenRoutes @(NamedRoutes API) (show ''API)
+#endif
+#if MIN_VERSION_servant(0,20,3)
+  it "MultiVerb API" $ goldenRoutes @(NamedRoutes MultiAPI) (show ''MultiAPI)
 #endif

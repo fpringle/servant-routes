@@ -7,6 +7,10 @@ and this project adheres to [Haskell Package Versioning Policy](https://pvp.hask
 
 ## [Unreleased]
 
+### Added
+
+- `HasRoutes` support for `MultiVerb`. [#44](https://github.com/fpringle/servant-routes/pull/44)
+
 ### Changed
 
 - `RouteDescription` is now called `ResponseDescription` and has moved from `Route` to `Response`. [#41](https://github.com/fpringle/servant-routes/pull/41)

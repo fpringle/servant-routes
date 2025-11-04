@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 {- |
@@ -109,6 +110,7 @@ import qualified Data.Aeson.Key as AK (fromText)
 import qualified Data.Aeson.Types as A (Pair)
 import Data.Bifunctor (bimap)
 import Data.Foldable (foldl', traverse_)
+import Data.Kind (Type)
 import Data.List (sort)
 import qualified Data.Map as Map
 import qualified Data.Text.Encoding as TE
@@ -121,6 +123,9 @@ import Lens.Micro
 import Network.HTTP.Types.Method (Method)
 import Servant.API
 import Servant.API.Modifiers (RequiredArgument)
+#if MIN_VERSION_servant(0,20,3)
+import Servant.API.MultiVerb
+#endif
 import "this" Servant.API.Routes.Auth
 import "this" Servant.API.Routes.Header
 import "this" Servant.API.Routes.Param
@@ -523,3 +528,47 @@ instance
     where
       method = reflectMethod $ Proxy @method
       response = oneResponse @a
+
+#if MIN_VERSION_servant(0,20,3)
+instance
+  {-# OVERLAPPING #-}
+  ( ReflectMethod method
+  , AsUnion '[] result -- I don't think this will ever be satisfied, but you never know.
+  ) =>
+  HasRoutes (MultiVerb (method :: StdMethod) (mimeTypes :: [k]) '[] result)
+  where
+  getRoutes = pure $ defRoute method
+    where
+      method = reflectMethod $ Proxy @method
+
+instance
+  {-# OVERLAPPING #-}
+  ( ReflectMethod method
+  , HasResponse response
+  , AsUnion '[response] result
+  ) =>
+  HasRoutes (MultiVerb (method :: StdMethod) (mimeTypes :: [k]) '[response :: Type] result)
+  where
+  getRoutes =
+    pure $
+      defRoute method
+        & routeResponse .~ response
+    where
+      method = reflectMethod $ Proxy @method
+      response = oneResponse @response
+
+instance
+  ( ReflectMethod method
+  , AllHasResponse responses
+  , AsUnion responses result
+  ) =>
+  HasRoutes (MultiVerb (method :: StdMethod) (mimeTypes :: [k]) (responses :: [Type]) result)
+  where
+  getRoutes =
+    pure $
+      defRoute method
+        & routeResponse .~ response
+    where
+      method = reflectMethod $ Proxy @method
+      response = oneOfResponses @responses
+#endif

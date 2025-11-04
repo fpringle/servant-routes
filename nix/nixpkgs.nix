@@ -22,7 +22,9 @@ let
       haskell-overrides = hfinal: hprev:
         let
           # When we pin specific versions of Haskell packages, they'll go here using callCabal2Nix.
-          packageOverrides = { };
+          packageOverrides = {
+            servant = hfinal.callCabal2nix "servant" "${sources.servant}/servant" {};
+          };
 
           pkgMods = [ ];
 
