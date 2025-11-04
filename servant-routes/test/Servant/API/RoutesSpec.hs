@@ -48,6 +48,16 @@ type SummaryEP2 =
 
 type SummaryAPI = SummaryEP1 :<|> SummaryEP2
 
+#if MIN_VERSION_servant(0,20,3)
+type HostEP1 =
+  "ep1" :> Host "This has a host" :> Get '[JSON] Int
+
+type HostEP2 =
+  "ep2" :> Get '[JSON] String
+
+type HostAPI = HostEP1 :<|> HostEP2
+#endif
+
 type SubAPI2 = Header "h1" T.Text :> "x" :> ("y" :> Put '[JSON] String :<|> SubAPI)
 
 type SubAPI3 =
@@ -261,6 +271,19 @@ spec = do
         getRoutes @(NamedRoutes API) `shouldMatchList` getRoutes @SubAPI <> getRoutes @SubAPI2 <> getRoutes @SubAPI3
 #endif
 #if MIN_VERSION_servant(0,20,3)
+      describe "Host" $ do
+        it "Should work as intended" $
+          getRoutes @(Host "host" :> SubAPI)
+            `shouldMatchList` (getRoutes @SubAPI <&> routeHost ?~ "host")
+        it "Should not override more specific hosts" $
+          getRoutes @(Host "host1" :> Host "host2" :> SubAPI)
+            `shouldMatchList` getRoutes @(Host "host2" :> SubAPI)
+        it "Should set host for sub-routes without hosts" $
+          let epRoute1 = getRoutes @HostEP1
+              epRoute2 = getRoutes @HostEP2
+              withAddedHostRoutes = getRoutes @(Host "Overall" :> HostAPI)
+              expectedRoutes = epRoute1 <> (epRoute2 & traversed . routeHost ?~ "Overall")
+          in  withAddedHostRoutes `shouldMatchList` expectedRoutes
       describe "MultiVerb" $ do
         it "Empty union" $
           getRoutes @(MultiVerb 'POST '[JSON] '[] (Union '[]))
